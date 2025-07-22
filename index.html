@@ -1,0 +1,189 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Yu-Gi-Oh! Regional Qualifier 2025</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js" defer></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: url('LCG.png') no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Arial Black', sans-serif;
+      color: #fff;
+      height: 100vh;
+      width: 100vw;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    header {
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 20px;
+      text-align: center;
+      width: 100%;
+    }
+    h1 { margin: 0; font-size: 26px; }
+    h2 { margin: 5px 0 0; font-size: 18px; color: #ccc; }
+    .container {
+      margin-top: 20px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 20px;
+      border-radius: 8px;
+      width: 95%;
+      max-width: 900px;
+      box-sizing: border-box;
+    }
+    input[type="text"] {
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      width: 100%;
+      font-size: 16px;
+      background-color: #333;
+      color: #fff;
+    }
+    .mesa {
+      text-align: center;
+      font-size: 22px;
+      margin: 10px 0;
+      color: #ff3333;
+      font-weight: bold;
+    }
+    .vs-view {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      background-color: rgba(0,0,0,0.7);
+      border: 4px solid #ff0000;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 0 25px red;
+    }
+    .player-box {
+      flex: 1;
+      text-align: center;
+      padding: 20px;
+      background-color: #2a2a2a;
+      border-radius: 12px;
+      margin: 0 10px;
+    }
+    .player-box h2 { font-size: 22px; margin-bottom: 10px; color: #fff; }
+    .player-box p { font-size: 15px; color: #aaa; }
+    .vs-text { font-size: 40px; color: #ff3333; }
+    @media (max-width: 700px) {
+      body { justify-content: flex-start; }
+      .vs-view { flex-direction: column; padding: 10px; }
+      .player-box { margin: 10px 0; width: 100%; }
+      .vs-text { margin: 10px 0; }
+      .mesa { font-size: 18px; }
+    }
+    #vsContainer:empty { display: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Yu-Gi-Oh! Regional Qualifier 2025</h1>
+    <h2 id="rondaInfo">Cargando ronda...</h2>
+  </header>
+  <div class="container">
+    <input type="text" id="searchID" placeholder="Busca tu Konami ID aquí..." maxlength="10" pattern="\d{10}" />
+    <div id="vsContainer"></div>
+  </div>
+  <script>
+    let fullData = [];
+    function extractNameAndID(text) {
+      const id = (text.match(/\((\d{10})\)/) || [])[1] || "";
+      const name = text.replace(/\s*\(\d{10}\)/, "").trim();
+      return { name, id };
+    }
+    function processData(data) {
+      fullData = [];
+      for (let i = 1; i < data.length; i++) {
+        const row = data[i];
+        if (!row || row.length < 4) continue;
+        const mesa = row[0];
+        const p1 = extractNameAndID(row[1] || "");
+        const p2 = extractNameAndID(row[3] || "");
+        fullData.push({ mesa, name1: p1.name, id1: p1.id, name2: p2.name, id2: p2.id });
+      }
+      const saved = localStorage.getItem("lastKonamiID");
+      if (saved && saved.length === 10) {
+        document.getElementById("searchID").value = saved;
+        filterByID(saved);
+      }
+    }
+    function displayVS(data) {
+      if (data.length === 0) {
+        document.getElementById('vsContainer').innerHTML = "<p>No se encontró ese Konami ID.</p>";
+        return;
+      }
+      const duel = data[0];
+      let html = `
+        <div class="mesa">MESA ${duel.mesa}</div>
+        <div class="vs-view">
+          <div class="player-box">
+            <h2>${duel.name1}</h2>
+            <p>Konami ID: ${duel.id1}</p>
+          </div>
+          <div class="vs-text">VS</div>
+          <div class="player-box">
+            <h2>${duel.name2}</h2>
+            <p>Konami ID: ${duel.id2}</p>
+          </div>
+        </div>`;
+      document.getElementById('vsContainer').innerHTML = html;
+    }
+    function filterByID(id) {
+      if (!/^\d{10}$/.test(id)) {
+        document.getElementById("vsContainer").innerHTML = "";
+        return;
+      }
+      const match = fullData.filter(row => row.id1 === id || row.id2 === id);
+      displayVS(match);
+    }
+    document.getElementById('searchID').addEventListener('input', function () {
+      const query = this.value.trim();
+      if (query.length === 10 && /^\d{10}$/.test(query)) {
+        localStorage.setItem("lastKonamiID", query);
+        filterByID(query);
+      } else {
+        document.getElementById("vsContainer").innerHTML = "";
+      }
+    });
+    async function buscarArchivoConRondaMasAlta() {
+      const maxRondas = 20;
+      let archivoEncontrado = null;
+      for (let i = maxRondas; i >= 1; i--) {
+        const nombreArchivo = `Ronda-${i}.csv`;
+        try {
+          const res = await fetch(nombreArchivo);
+          if (res.ok) {
+            const text = await res.text();
+            document.getElementById("rondaInfo").innerText = "Ronda: " + i;
+            Papa.parse(text, {
+              complete: function (results) {
+                processData(results.data);
+              },
+              skipEmptyLines: true
+            });
+            archivoEncontrado = nombreArchivo;
+            break;
+          }
+        } catch (e) { }
+      }
+      if (!archivoEncontrado) {
+        document.getElementById("rondaInfo").innerText = "No se encontró archivo Ronda-*.csv";
+      }
+    }
+    buscarArchivoConRondaMasAlta();
+  </script>
+</body>
+</html>
