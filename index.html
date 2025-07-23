@@ -2,211 +2,221 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Yu-Gi-Oh! Regional Qualifier 2025</title>
-  <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="manifest.json" />
   <style>
-    :root {
-      --rojo: #e02626;
-      --azul: #005eff;
-      --negro: #000;
-      --texto: #fff;
-    }
-
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background-color: var(--negro);
-      color: var(--texto);
+      background-color: #000;
+      color: #fff;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 1rem;
+      min-height: 100vh;
       background-image: url('LCG.png');
       background-repeat: no-repeat;
-      background-size: 60vw;
-      background-position: center top 10vh;
+      background-position: center;
+      background-size: contain;
       background-attachment: fixed;
     }
 
-    h1 {
-      font-size: 1.8rem;
-      color: var(--rojo);
-      text-align: center;
-      margin: 0.5rem 0;
-    }
-
-    .ronda {
-      font-size: 1.2rem;
-      font-weight: bold;
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-
-    #searchInput {
-      width: 100%;
-      max-width: 320px;
-      padding: 0.6rem;
+    .container {
+      background-color: rgba(0, 0, 0, 0.85);
       border-radius: 10px;
-      border: none;
-      font-size: 1.1rem;
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-
-    .vs-card {
-      position: relative;
+      padding: 1rem;
       width: 100%;
-      max-width: 500px;
-      background: linear-gradient(to bottom, var(--rojo) 0%, var(--rojo) 50%, var(--azul) 50%, var(--azul) 100%);
-      border-radius: 20px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.8);
-      padding: 1rem 0.5rem;
-      text-align: center;
+      max-width: 600px;
+      box-sizing: border-box;
       margin-top: 1rem;
     }
 
+    h1 {
+      color: #ff3333;
+      font-size: 1.8rem;
+      margin: 0.5rem 0;
+      text-align: center;
+    }
+
+    h2 {
+      text-align: center;
+      margin-top: 0;
+      color: #fff;
+    }
+
+    #search {
+      display: flex;
+      justify-content: center;
+      margin: 1rem 0;
+    }
+
+    #konamiInput {
+      padding: 0.6rem;
+      font-size: 1rem;
+      border-radius: 10px;
+      border: none;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+
     .mesa {
+      text-align: center;
       font-size: 2rem;
+      color: #ff3333;
       font-weight: bold;
-      color: white;
-      margin-bottom: 1rem;
-      text-shadow: 1px 1px 3px black;
+      margin: 1rem 0;
     }
 
     .duel-box {
-      background-color: rgba(0, 0, 0, 0.85);
-      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .jugador-box {
+      background-color: #222;
+      border-radius: 10px;
       padding: 1rem;
-      margin: 0.5rem 1rem;
+      text-align: center;
+      border-top: 4px solid red;
     }
 
-    .duel-box h3 {
-      font-size: 1.3rem;
-      margin: 0;
+    .oponente-box {
+      background-color: #222;
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+      border-top: 4px solid #007bff;
     }
 
-    .duel-box p {
-      margin: 0.3rem 0 0;
-      color: #ccc;
-      font-size: 1rem;
-    }
-
-    .vs-label {
+    .vs {
       font-size: 1.5rem;
+      color: #fff;
       font-weight: bold;
-      margin: 0.7rem 0;
+      text-align: center;
     }
 
     @media (max-width: 600px) {
-      body {
-        background-size: 90vw;
-        background-position: center top 5vh;
+      #konamiInput {
+        width: 90%;
+        margin: auto;
       }
 
-      #searchInput {
-        margin: 0 auto 1rem;
-        display: block;
-      }
-
-      .vs-card {
-        padding: 1rem 0.3rem;
+      .container {
+        margin: 1rem;
       }
     }
   </style>
 </head>
 <body>
-  <h1>Yu-Gi-Oh! Regional Qualifier 2025</h1>
-  <div class="ronda" id="ronda-info">Ronda: -</div>
-  <input type="text" id="searchInput" maxlength="10" pattern="\d*" placeholder="Ingresa tu Konami ID" inputmode="numeric" />
+  <div class="container">
+    <h1>Yu-Gi-Oh! Regional Qualifier 2025</h1>
+    <h2 id="ronda">Ronda: </h2>
 
-  <div id="results-container"></div>
+    <div id="search">
+      <input type="text" id="konamiInput" placeholder="Ingresa tu Konami ID..." maxlength="10" pattern="\d*">
+    </div>
+
+    <div id="resultado"></div>
+  </div>
 
   <script>
-    async function detectarUltimaRonda() {
-      for (let i = 30; i >= 1; i--) {
+    const input = document.getElementById("konamiInput");
+    const resultadoDiv = document.getElementById("resultado");
+    const rondaSpan = document.getElementById("ronda");
+
+    let fullData = [];
+
+    // Leer todos los archivos posibles y buscar el más alto
+    async function cargarCSV() {
+      let ultimaRonda = 0;
+      for (let i = 1; i <= 30; i++) {
         try {
-          const res = await fetch(`Ronda-${i}.csv`);
-          if (res.ok) return i;
-        } catch (e) {}
+          const response = await fetch(`Ronda-${i}.csv`);
+          if (response.ok) ultimaRonda = i;
+          else break;
+        } catch (e) {
+          break;
+        }
       }
-      return null;
-    }
 
-    async function cargarCSV(ronda) {
-      const res = await fetch(`Ronda-${ronda}.csv`);
-      const txt = await res.text();
-      const filas = txt.trim().split('\n').slice(1);
-
-      return filas.map(row => {
-        const cols = row.split('\t');
-        if (cols.length < 4) return null;
-
-        const mesa = cols[0].trim();
-        const jugadorRaw = cols[1].trim();
-        const adversarioRaw = cols[3].trim();
-
-        const jugadorMatch = jugadorRaw.match(/(.+)\((\d{10})\)/);
-        const adversarioMatch = adversarioRaw.match(/(.+)\((\d{10})\)/);
-
-        if (!jugadorMatch || !adversarioMatch) return null;
-
+      rondaSpan.textContent = `Ronda: ${ultimaRonda}`;
+      const res = await fetch(`Ronda-${ultimaRonda}.csv`);
+      const text = await res.text();
+      const lines = text.trim().split('\n').slice(1);
+      fullData = lines.map(line => {
+        const cols = line.split(',');
+        const mesa = cols[0];
+        const name1 = cols[1];
+        const name2 = cols[3];
+        const id1Match = name1.match(/\((\d{10})\)/);
+        const id2Match = name2.match(/\((\d{10})\)/);
+        const id1 = id1Match ? id1Match[1] : '';
+        const id2 = id2Match ? id2Match[1] : '';
+        const clean1 = name1.replace(/\(\d{10}\)/, '').trim();
+        const clean2 = name2.replace(/\(\d{10}\)/, '').trim();
         return {
           mesa,
-          jugadorNombre: jugadorMatch[1].trim(),
-          jugadorID: jugadorMatch[2],
-          adversarioNombre: adversarioMatch[1].trim(),
-          adversarioID: adversarioMatch[2]
+          name1: clean1,
+          id1,
+          name2: clean2,
+          id2
         };
-      }).filter(Boolean);
+      });
+
+      buscarID(localStorage.getItem("konamiID") || "");
     }
 
-    function mostrarResultado(jugador) {
-      const cont = document.getElementById("results-container");
-      cont.innerHTML = `
-        <div class="vs-card">
-          <div class="mesa">MESA ${jugador.mesa}</div>
-          <div class="duel-box">
-            <h3>${jugador.jugadorNombre}</h3>
-            <p>Konami ID: ${jugador.jugadorID}</p>
-          </div>
-          <div class="vs-label">VS</div>
-          <div class="duel-box">
-            <h3>${jugador.adversarioNombre}</h3>
-            <p>Konami ID: ${jugador.adversarioID}</p>
-          </div>
-        </div>`;
-    }
-
-    (async () => {
-      const ronda = await detectarUltimaRonda();
-      if (!ronda) return alert("No se encontró archivo CSV");
-      document.getElementById("ronda-info").textContent = `Ronda: ${ronda}`;
-      const datos = await cargarCSV(ronda);
-
-      const input = document.getElementById("searchInput");
-      const saved = localStorage.getItem("lastID");
-      if (saved) {
-        input.value = saved;
-        const j = datos.find(p =>
-          p.jugadorID === saved || p.adversarioID === saved
-        );
-        if (j) mostrarResultado(j);
+    function buscarID(konamiID) {
+      if (!konamiID || konamiID.length !== 10) {
+        resultadoDiv.innerHTML = "";
+        return;
       }
 
-      input.addEventListener("input", e => {
-        const val = e.target.value.trim();
-        if (!/^\d{10}$/.test(val)) return;
-        const j = datos.find(p =>
-          p.jugadorID === val || p.adversarioID === val
-        );
-        document.getElementById("results-container").innerHTML = '';
-        if (j) {
-          localStorage.setItem("lastID", val);
-          mostrarResultado(j);
-        }
-      });
-    })();
+      const match = fullData.find(d => d.id1 === konamiID || d.id2 === konamiID);
+      if (!match) {
+        resultadoDiv.innerHTML = "";
+        return;
+      }
+
+      const esJugador1 = match.id1 === konamiID;
+
+      const miNombre = esJugador1 ? match.name1 : match.name2;
+      const miID = esJugador1 ? match.id1 : match.id2;
+      const oponenteNombre = esJugador1 ? match.name2 : match.name1;
+      const oponenteID = esJugador1 ? match.id2 : match.id1;
+
+      resultadoDiv.innerHTML = `
+        <div class="mesa">MESA ${match.mesa}</div>
+        <div class="duel-box">
+          <div class="jugador-box">
+            <strong>${miNombre}</strong><br>
+            Konami ID: ${miID}
+          </div>
+          <div class="vs">VS</div>
+          <div class="oponente-box">
+            <strong>${oponenteNombre}</strong><br>
+            Konami ID: ${oponenteID}
+          </div>
+        </div>
+      `;
+    }
+
+    input.addEventListener("input", e => {
+      const value = e.target.value.replace(/\D/g, "").slice(0, 10);
+      input.value = value;
+      localStorage.setItem("konamiID", value);
+      buscarID(value);
+    });
+
+    window.addEventListener("load", () => {
+      const savedID = localStorage.getItem("konamiID") || "";
+      input.value = savedID;
+      cargarCSV();
+    });
   </script>
 </body>
 </html>
