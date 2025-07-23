@@ -1,189 +1,237 @@
-<!DOCTYPE html><html lang="es">
+<!DOCTYPE html>
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Yu-Gi-Oh! Regional Qualifier 2025</title>
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="manifest" href="./manifest.json" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js" defer></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js');
+      });
+    }
+  </script>
   <style>
-    body {
+    html, body {
       margin: 0;
+      padding: 0;
       font-family: Arial, sans-serif;
-      background-color: #000;
-      color: white;
-      text-align: center;
-      background-image: url('LCG.png');
-      background-repeat: no-repeat;
-      background-position: center;
-      background-size: 80vw;
-      background-attachment: fixed;
-    }
-    header {
-      padding: 20px 0 10px;
-      background-color: rgba(0, 0, 0, 0.8);
-    }
-    header h1 {
-      color: #ff3333;
-      font-size: 1.8em;
-      margin: 0;
-    }
-    header h2 {
-      margin: 10px 0 0;
+      background-color: #121212;
       color: #fff;
+      overflow-x: hidden;
+      overflow-y: auto;
     }
-    #search-container {
-      margin: 20px auto;
-      display: flex;
-      justify-content: center;
-    }
-    input[type="text"] {
-      padding: 12px;
-      border-radius: 12px;
-      border: none;
-      width: 80%;
-      max-width: 400px;
+
+    header {
+      background-color: rgba(0, 0, 0, 0.8);
+      padding: 20px;
       text-align: center;
-      font-size: 1.2em;
     }
-    .result-container {
-      margin: 20px auto;
-      width: 90%;
-      max-width: 600px;
-      padding: 10px;
-      background: rgba(0,0,0,0.8);
-      border-radius: 16px;
-    }
-    .mesa-num {
-      font-size: 2.2em;
-      font-weight: bold;
-      color: #ff3333;
-      margin: 10px 0;
-    }
-    .jugador-box {
-      padding: 16px;
-      margin: 16px auto;
-      background-color: #222;
-      border-radius: 12px;
-    }
-    .jugador-box h3 {
+
+    h1 {
       margin: 0;
-      font-size: 1.4em;
+      font-size: 28px;
+      color: #D62828;
     }
-    .jugador-box p {
-      margin: 4px 0 0;
-      font-size: 1em;
-      color: #ccc;
+
+    h2 {
+      margin: 10px 0 0;
+      font-size: 20px;
+      color: #D3D3D3;
     }
+
+    .container {
+      background: linear-gradient(rgba(18, 18, 18, 0.96), rgba(18, 18, 18, 0.96)),
+                  url('./LCG.png') no-repeat center 55%;
+      background-size: 220px;
+      background-attachment: local;
+      min-height: 420px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    input[type="text"] {
+      margin: 10px 0 20px;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      width: 100%;
+      max-width: 400px;
+      font-size: 16px;
+      text-align: center;
+    }
+
+    #tableContainer p {
+      font-size: 16px;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 400px;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+
+    .card-top {
+      background-color: #D62828;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .card-bottom {
+      background-color: #003049;
+      padding: 10px;
+      text-align: center;
+    }
+
     .vs-text {
-      font-size: 1.5em;
+      font-size: 20px;
       font-weight: bold;
-      color: white;
-      margin: 10px 0;
+      margin: 20px 0;
+      color: #D3D3D3;
     }
+
     @media (max-width: 600px) {
-      input[type="text"] {
-        width: 90%;
-      }
+      h1 { font-size: 22px; }
+      h2 { font-size: 16px; }
+      input[type="text"] { font-size: 14px; }
     }
   </style>
 </head>
 <body>
   <header>
     <h1>Yu-Gi-Oh! Regional Qualifier 2025</h1>
-    <h2 id="ronda">Ronda: ...</h2>
-  </header>  <div id="search-container">
-    <input type="text" id="search" placeholder="Ingresa tu Konami ID" maxlength="10" inputmode="numeric" />
-  </div>  <div id="resultado"></div>  <script>
-    const input = document.getElementById('search');
-    const resultado = document.getElementById('resultado');
-    const rondaHeader = document.getElementById('ronda');
+    <h2 id="rondaInfo">Cargando ronda...</h2>
+  </header>
 
-    let datos = [];
+  <div class="container">
+    <input
+      type="text"
+      id="searchID"
+      placeholder="Ingresa tu Konami ID (10 dígitos)"
+      maxlength="10"
+      pattern="[0-9]*"
+      inputmode="numeric"
+    />
+    <div id="tableContainer"></div>
+  </div>
 
-    async function cargarDatos() {
-      let ronda = 1;
-      for (let i = 1; i <= 20; i++) {
-        try {
-          const res = await fetch(`Ronda-${i}.csv`);
-          if (res.ok) ronda = i;
-          else break;
-        } catch {
-          break;
-        }
-      }
-      rondaHeader.textContent = `Ronda: ${ronda}`;
+  <script>
+    let fullData = [];
 
-      try {
-        const response = await fetch(`Ronda-${ronda}.csv`);
-        const texto = await response.text();
-        const lineas = texto.split('\n').filter(l => l.trim() !== '');
-        datos = [];
-        for (let i = 1; i < lineas.length; i++) {
-          const columnas = lineas[i].split(',');
-          if (columnas.length < 4) continue;
-          const mesa = columnas[0];
-          const jugador1 = columnas[1];
-          const jugador2 = columnas[3];
+    function extractNameAndID(text) {
+      const clean = text.replace(/["']/g, "").trim();
+      const match = clean.match(/\\((\\d{10})\\)/);
+      const id = match ? match[1] : "";
+      const name = clean.replace(/\\s*\\(\\d{10}\\)/, "").trim();
+      return { name, id };
+    }
 
-          const matchId1 = jugador1.match(/(\d{10})/);
-          const matchId2 = jugador2.match(/(\d{10})/);
-          const id1 = matchId1 ? matchId1[1] : '';
-          const id2 = matchId2 ? matchId2[1] : '';
+    function processData(data) {
+      fullData = data.slice(1).map(row => {
+        if (!row || row.length < 4) return null;
+        const mesa = row[0];
+        const p1 = extractNameAndID(row[1] || "");
+        const p2 = extractNameAndID(row[3] || "");
+        return { mesa, ...p1, name2: p2.name, id2: p2.id };
+      }).filter(Boolean);
 
-          datos.push({ mesa, jugador1, id1, jugador2, id2 });
-        }
-
-        const ultimoId = localStorage.getItem('konamiID');
-        if (ultimoId) {
-          input.value = ultimoId;
-          buscar(ultimoId);
-        }
-
-      } catch (e) {
-        console.error("Error cargando archivo CSV", e);
+      const saved = localStorage.getItem("lastKonamiID");
+      if (saved && /^[0-9]{10}$/.test(saved)) {
+        document.getElementById("searchID").value = saved;
+        filterByID(saved);
       }
     }
 
-    function buscar(id) {
-      resultado.innerHTML = '';
-      if (!/^\d{10}$/.test(id)) return;
+    function displayTable(data) {
+      const container = document.getElementById("tableContainer");
 
-      const partida = datos.find(p => p.id1 === id || p.id2 === id);
-      if (!partida) return;
+      if (!data || data.length === 0) {
+        container.innerHTML = "<p>No se encontró ese Konami ID.</p>";
+        return;
+      }
 
-      const isJugador1 = partida.id1 === id;
-      const jugador = isJugador1 ? partida.jugador1 : partida.jugador2;
-      const idJugador = isJugador1 ? partida.id1 : partida.id2;
-      const oponente = isJugador1 ? partida.jugador2 : partida.jugador1;
-      const idOponente = isJugador1 ? partida.id2 : partida.id1;
+      const jugador = data[0];
+      const esJugador1 = jugador.id === document.getElementById("searchID").value;
+      const miID = esJugador1 ? jugador.id : jugador.id2;
+      const miNombre = esJugador1 ? jugador.name : jugador.name2;
+      const rivalID = esJugador1 ? jugador.id2 : jugador.id;
+      const rivalNombre = esJugador1 ? jugador.name2 : jugador.name;
 
-      resultado.innerHTML = `
-        <div class="result-container">
-          <div class="mesa-num">MESA ${partida.mesa}</div>
-          <div class="jugador-box">
-            <h3>${jugador}</h3>
-            <p>Konami ID: ${idJugador}</p>
+      container.innerHTML = `
+        <div style="text-align:center; margin-bottom: 20px;">
+          <h2 style="font-size: 32px; color: #D62828;">Mesa ${jugador.mesa}</h2>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 20px; align-items: center;">
+          <div class="card">
+            <div class="card-top">
+              <h3 style="margin:0; font-size: 18px;">${miNombre}</h3>
+            </div>
+            <div class="card-bottom">
+              <p style="margin:4px 0;"><strong>Konami ID:</strong> ${miID}</p>
+            </div>
           </div>
+
           <div class="vs-text">VS</div>
-          <div class="jugador-box">
-            <h3>${oponente}</h3>
-            <p>Konami ID: ${idOponente}</p>
+
+          <div class="card">
+            <div class="card-top" style="background-color:#003049;">
+              <h3 style="margin:0; font-size: 18px;">${rivalNombre}</h3>
+            </div>
+            <div class="card-bottom" style="background-color:#D62828;">
+              <p style="margin:4px 0;"><strong>Konami ID:</strong> ${rivalID}</p>
+            </div>
           </div>
         </div>
       `;
     }
 
-    input.addEventListener('input', (e) => {
-      const valor = e.target.value.replace(/[^\d]/g, '').slice(0, 10);
-      e.target.value = valor;
-      if (valor.length === 10) {
-        localStorage.setItem('konamiID', valor);
-        buscar(valor);
-      } else {
-        resultado.innerHTML = '';
+    function filterByID(id) {
+      if (!/^\\d{10}$/.test(id)) {
+        document.getElementById("tableContainer").innerHTML = "";
+        return;
       }
+
+      const match = fullData.find(row => row.id === id || row.id2 === id);
+      localStorage.setItem("lastKonamiID", id);
+      displayTable(match ? [match] : []);
+    }
+
+    document.getElementById('searchID').addEventListener('input', function () {
+      const input = this.value.replace(/\\D/g, "").slice(0, 10);
+      this.value = input;
+      if (input.length === 10) filterByID(input);
+      else document.getElementById("tableContainer").innerHTML = "";
     });
 
-    cargarDatos();
-  </script></body>
+    async function buscarArchivoConRondaMasAlta() {
+      const maxRondas = 20;
+      for (let i = maxRondas; i >= 1; i--) {
+        const archivo = `./Ronda-${i}.csv`;
+        try {
+          const res = await fetch(archivo);
+          if (!res.ok) continue;
+          const text = await res.text();
+          document.getElementById("rondaInfo").innerText = "Ronda: " + i;
+          Papa.parse(text, {
+            complete: results => processData(results.data),
+            skipEmptyLines: true
+          });
+          return;
+        } catch (e) {}
+      }
+      document.getElementById("rondaInfo").innerText = "No se encontró ningún archivo de ronda.";
+    }
+
+    buscarArchivoConRondaMasAlta();
+  </script>
+</body>
 </html>
