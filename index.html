@@ -136,10 +136,20 @@
     function processData(data) {
       fullData = data.slice(1).map(row => {
         if (!row || row.length < 4) return null;
+
         const mesa = row[0];
         const p1 = extractNameAndID(row[1] || "");
         const p2 = extractNameAndID(row[3] || "");
-        return { mesa, name: p1.name, id: p1.id, name2: p2.name, id2: p2.id };
+
+        if (!mesa || !p1.id || !p2.id) return null;
+
+        return {
+          mesa,
+          name: p1.name,
+          id: p1.id,
+          name2: p2.name,
+          id2: p2.id
+        };
       }).filter(Boolean);
 
       const saved = localStorage.getItem("lastKonamiID");
