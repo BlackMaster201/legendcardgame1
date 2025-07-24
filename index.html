@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Yu-Gi-Oh! Regional Qualifier 2025</title>
   <link rel="manifest" href="./manifest.json" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/papaparse/5.4.1/papaparse.min.js" defer></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -14,30 +13,25 @@
       margin: 0;
       padding: 20px;
     }
-
     header {
       background-color: rgba(0, 0, 0, 0.8);
       padding: 20px;
       text-align: center;
       border-radius: 10px;
     }
-
     h1 {
       margin: 0;
       font-size: 28px;
       color: #D62828;
     }
-
     h2 {
       margin: 10px 0 0;
       font-size: 20px;
       color: #D3D3D3;
     }
-
     .container {
       margin-top: 20px;
-      background: linear-gradient(rgba(18, 18, 18, 0.96), rgba(18, 18, 18, 0.96)),
-        url('./LCG.png') no-repeat center 55%;
+      background: linear-gradient(rgba(18, 18, 18, 0.96), rgba(18, 18, 18, 0.96)), url('./LCG.png') no-repeat center 55%;
       background-size: 220px;
       background-attachment: local;
       padding: 20px;
@@ -47,7 +41,6 @@
       flex-direction: column;
       align-items: center;
     }
-
     input[type="text"] {
       margin: 10px auto 20px;
       padding: 10px;
@@ -58,40 +51,33 @@
       font-size: 16px;
       display: block;
     }
-
+    #tableContainer p {
+      font-size: 16px;
+      text-align: center;
+      margin-top: 20px;
+    }
     .tabs {
       display: flex;
       justify-content: center;
-      margin-bottom: 20px;
+      margin-top: 20px;
     }
-
-    .tab {
+    .tab-btn {
+      background-color: #1e1e1e;
+      color: #fff;
+      border: 1px solid #333;
       padding: 10px 20px;
       margin: 0 5px;
       cursor: pointer;
-      background-color: #333;
-      border-radius: 6px;
-      color: #fff;
     }
-
-    .tab.active {
+    .tab-btn.active {
       background-color: #D62828;
     }
-
-    .hidden { display: none; }
-    .result-win { color: #00ff00; }
-    .result-loss { color: #ff4444; }
-    .result-draw { color: #cccccc; }
-
-    @media (max-width: 600px) {
-      h1 { font-size: 22px; }
-      h2 { font-size: 16px; }
-      input[type="text"] {
-        font-size: 14px;
-        width: calc(100% - 40px);
-        margin: 10px auto 20px;
-      }
+    .hidden {
+      display: none;
     }
+    .result-win { color: #00FF00; }
+    .result-loss { color: #FF4444; }
+    .result-draw { color: #CCCCCC; }
   </style>
 </head>
 <body>
@@ -100,141 +86,170 @@
     <h2 id="rondaInfo">Cargando ronda...</h2>
   </header>
 
-  <div class="tabs">
-    <div class="tab active" id="tabActual">Ronda Actual</div>
-    <div class="tab" id="tabHistorial">Historial</div>
-  </div>
-
   <div class="container">
-    <input type="text" id="searchID" placeholder="Ingresa tu Konami ID (10 dígitos)" maxlength="10" pattern="[0-9]*" inputmode="numeric" />
+    <input
+      type="text"
+      id="searchID"
+      placeholder="Ingresa tu Konami ID (10 dígitos)"
+      maxlength="10"
+      pattern="[0-9]*"
+      inputmode="numeric"
+    />
+
+    <div class="tabs">
+      <button id="tab-ronda" class="tab-btn active">Ronda Actual</button>
+      <button id="tab-historial" class="tab-btn">Historial</button>
+    </div>
+
     <div id="tableContainer"></div>
     <div id="historialContainer" class="hidden"></div>
   </div>
 
   <script>
-    let fullPlayers = [];
-    let fullMatches = [];
-    let currentRound = 0;
+    let tournamentData = null;
 
-    async function loadTournamentXML() {
-      const files = await fetch(".").then(res => res.text());
-      const filename = (files.match(/href="([^"]+\.Tournament)"/) || [])[1];
-      if (!filename) return;
-
-      const xmlText = await fetch(filename).then(res => res.text());
-      const parser = new DOMParser();
-      const xml = parser.parseFromString(xmlText, "text/xml");
-
-      currentRound = parseInt(xml.querySelector("CurrentRound").textContent);
-      document.getElementById("rondaInfo").textContent = "Ronda: " + currentRound;
-
-      fullPlayers = Array.from(xml.querySelectorAll("TournPlayer")).map(p => {
-        const id = p.querySelector("ID").textContent;
-        const first = p.querySelector("FirstName").textContent;
-        const last = p.querySelector("LastName").textContent;
-        const rank = parseInt(p.querySelector("Rank").textContent);
-        return { id, name: `${first} ${last}`, rank };
-      });
-
-      fullMatches = Array.from(xml.querySelectorAll("TournMatch")).map(m => ({
-        p1: m.querySelectorAll("Player")[0].textContent,
-        p2: m.querySelectorAll("Player")[1].textContent,
-        round: parseInt(m.querySelector("Round").textContent),
-        table: m.querySelector("Table").textContent,
-        winner: m.querySelector("Winner").textContent
-      }));
-
-      const saved = localStorage.getItem("lastKonamiID");
-      if (saved) {
-        document.getElementById("searchID").value = saved;
-        filterByID(saved);
-      }
-    }
-
-    function filterByID(id) {
-      localStorage.setItem("lastKonamiID", id);
-      const match = fullMatches.find(m => m.round === currentRound && (m.p1 === id || m.p2 === id));
-      const container = document.getElementById("tableContainer");
-
+    async function cargarArchivoTournament() {
+      const files = await fetch('.').then(r => r.text());
+      const match = files.match(/href="([^"]+\.Tournament)"/);
       if (!match) {
-        container.innerHTML = "<p>No se encontró ese Konami ID en esta ronda.</p>";
+        document.getElementById("rondaInfo").innerText = "Archivo .Tournament no encontrado.";
         return;
       }
 
-      const miID = id;
+      const archivo = match[1];
+      const response = await fetch(archivo);
+      const xmlText = await response.text();
+      const parser = new DOMParser();
+      const xml = parser.parseFromString(xmlText, "application/xml");
+
+      tournamentData = {
+        round: parseInt(xml.querySelector("CurrentRound").textContent),
+        players: Array.from(xml.querySelectorAll("TournPlayer")).map(p => ({
+          id: p.querySelector("Player > ID").textContent,
+          name: `${p.querySelector("Player > FirstName").textContent} ${p.querySelector("Player > LastName").textContent}`,
+          rank: p.querySelector("Rank").textContent
+        })),
+        matches: Array.from(xml.querySelectorAll("TournMatch")).map(m => ({
+          round: parseInt(m.querySelector("Round").textContent),
+          p1: m.querySelectorAll("Player")[0].textContent,
+          p2: m.querySelectorAll("Player")[1].textContent,
+          winner: m.querySelector("Winner").textContent,
+          table: m.querySelector("Table").textContent,
+          status: m.querySelector("Status").textContent
+        }))
+      };
+
+      document.getElementById("rondaInfo").innerText = `Ronda: ${tournamentData.round}`;
+      const saved = localStorage.getItem("lastKonamiID");
+      if (saved) {
+        document.getElementById("searchID").value = saved;
+        mostrarRonda(saved);
+      }
+    }
+
+    function getPlayer(id) {
+      return tournamentData.players.find(p => p.id === id);
+    }
+
+    function mostrarRonda(id) {
+      const ronda = tournamentData.round;
+      const match = tournamentData.matches.find(m => m.round === ronda && (m.p1 === id || m.p2 === id));
+      const container = document.getElementById("tableContainer");
+      container.innerHTML = "";
+
+      if (!match) {
+        container.innerHTML = "<p>No se encontró emparejamiento en esta ronda.</p>";
+        return;
+      }
+
+      const yo = getPlayer(id);
       const rivalID = match.p1 === id ? match.p2 : match.p1;
-      const miNombre = fullPlayers.find(p => p.id === miID)?.name || "Desconocido";
-      const rivalNombre = fullPlayers.find(p => p.id === rivalID)?.name || "Desconocido";
+      const rival = getPlayer(rivalID);
 
       container.innerHTML = `
         <div style="text-align:center; margin-bottom: 20px;">
           <h2 style="font-size: 32px; color: #D62828;">Mesa ${match.table}</h2>
         </div>
         <div style="display: flex; flex-direction: column; gap: 20px; align-items: center;">
-          <div style="background:#1E1E1E; border-radius:10px; padding:10px; width:100%; max-width:400px; text-align:center;">
-            <p><strong>Nombre:</strong> ${miNombre}</p>
-            <p><strong>Konami ID:</strong> ${miID}</p>
+          <div style="background:#1E1E1E; border-radius:10px 10px 0 0; padding:10px 15px; width:100%; max-width:400px; text-align:center; border-bottom:2px solid #D62828;">
+            <p style="margin:4px 0;"><strong>${yo.name}</strong></p>
+            <p style="margin:4px 0;"><strong>Konami ID:</strong> ${yo.id}</p>
           </div>
           <div style="text-align:center; font-size: 20px; font-weight:bold; color: #D3D3D3;">VS</div>
-          <div style="background:#1E1E1E; border-radius:10px; padding:10px; width:100%; max-width:400px; text-align:center;">
-            <p><strong>Nombre:</strong> ${rivalNombre}</p>
-            <p><strong>Konami ID:</strong> ${rivalID}</p>
+          <div style="background:#1E1E1E; border-radius:0 0 10px 10px; padding:10px 15px; width:100%; max-width:400px; text-align:center; border-top:2px solid #004AAD;">
+            <p style="margin:4px 0;"><strong>${rival.name}</strong></p>
+            <p style="margin:4px 0;"><strong>Konami ID:</strong> ${rival.id}</p>
           </div>
         </div>
       `;
-
-      renderHistorial(miID);
     }
 
-    function renderHistorial(miID) {
-      const historialContainer = document.getElementById("historialContainer");
-      const player = fullPlayers.find(p => p.id === miID);
-      if (!player) return;
+    function mostrarHistorial(id) {
+      const container = document.getElementById("historialContainer");
+      const historial = tournamentData.matches
+        .filter(m => m.p1 === id || m.p2 === id)
+        .sort((a, b) => b.round - a.round);
 
-      let rows = fullMatches
-        .filter(m => m.p1 === miID || m.p2 === miID)
-        .sort((a, b) => b.round - a.round)
-        .map(m => {
-          const rivalID = m.p1 === miID ? m.p2 : m.p1;
-          const rival = fullPlayers.find(p => p.id === rivalID);
-          const rivalName = rival?.name || "Desconocido";
+      const jugador = getPlayer(id);
 
-          let result = 'Empate', resultClass = 'result-draw';
-          if (m.winner === miID) result = 'Victoria', resultClass = 'result-win';
-          else if (m.winner === rivalID) result = 'Derrota', resultClass = 'result-loss';
+      let html = `<h2 style="text-align:center">Ranking Actual: ${jugador.rank}</h2><ul style="list-style:none; padding:0;">`;
 
-          return `<p><strong>Ronda ${m.round}</strong> - Mesa ${m.table}: <span class="${resultClass}">${result}</span> vs ${rivalName}</p>`;
-        });
+      historial.forEach(match => {
+        const esJugador1 = match.p1 === id;
+        const rival = getPlayer(esJugador1 ? match.p2 : match.p1);
+        const resultado =
+          match.winner === id ? "Victoria" :
+          match.winner === "0" ? "Empate" : "Derrota";
 
-      historialContainer.innerHTML = `
-        <div style="text-align:center; margin-bottom: 10px;">
-          <h3>Posición actual: #${player.rank}</h3>
-        </div>
-        ${rows.join('')}
-      `;
+        const colorClass =
+          resultado === "Victoria" ? "result-win" :
+          resultado === "Empate" ? "result-draw" : "result-loss";
+
+        html += `
+          <li class="${colorClass}" style="margin:8px 0;">
+            Ronda ${match.round}: ${resultado} contra ${rival.name}
+          </li>
+        `;
+      });
+
+      html += "</ul>";
+      container.innerHTML = html;
     }
 
-    document.getElementById("searchID").addEventListener("input", function () {
-      const input = this.value.replace(/\D/g, "").slice(0, 10);
-      this.value = input;
-      if (input.length === 10) filterByID(input);
+    document.getElementById("searchID").addEventListener("input", e => {
+      const id = e.target.value.replace(/\D/g, "").slice(0, 10);
+      e.target.value = id;
+      if (id.length === 10) {
+        localStorage.setItem("lastKonamiID", id);
+        if (document.getElementById("tab-ronda").classList.contains("active")) {
+          mostrarRonda(id);
+        } else {
+          mostrarHistorial(id);
+        }
+      }
     });
 
-    document.getElementById("tabActual").addEventListener("click", () => {
-      document.getElementById("tabActual").classList.add("active");
-      document.getElementById("tabHistorial").classList.remove("active");
+    document.getElementById("tab-ronda").addEventListener("click", () => {
+      document.getElementById("tab-ronda").classList.add("active");
+      document.getElementById("tab-historial").classList.remove("active");
       document.getElementById("tableContainer").classList.remove("hidden");
       document.getElementById("historialContainer").classList.add("hidden");
+
+      const id = document.getElementById("searchID").value;
+      if (id.length === 10) mostrarRonda(id);
     });
 
-    document.getElementById("tabHistorial").addEventListener("click", () => {
-      document.getElementById("tabActual").classList.remove("active");
-      document.getElementById("tabHistorial").classList.add("active");
+    document.getElementById("tab-historial").addEventListener("click", () => {
+      document.getElementById("tab-historial").classList.add("active");
+      document.getElementById("tab-ronda").classList.remove("active");
       document.getElementById("tableContainer").classList.add("hidden");
       document.getElementById("historialContainer").classList.remove("hidden");
+
+      const id = document.getElementById("searchID").value;
+      if (id.length === 10) mostrarHistorial(id);
     });
 
-    loadTournamentXML();
+    cargarArchivoTournament();
   </script>
 </body>
 </html>
