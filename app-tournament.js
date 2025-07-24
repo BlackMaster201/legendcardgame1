@@ -1,167 +1,156 @@
-// app-tournament.js
-document.addEventListener("DOMContentLoaded", () => {
-  const input = document.getElementById("searchID");
-  const rondaInfo = document.getElementById("rondaInfo");
-  const container = document.getElementById("tableContainer");
-  const currentTab = document.getElementById("currentTab");
-  const historyTab = document.getElementById("historyTab");
-  const tabContent1 = document.getElementById("tabContent1");
-  const tabContent2 = document.getElementById("tabContent2");
-
-  let tournamentData = null;
-
-  input.addEventListener("input", () => {
-    const id = input.value.replace(/\D/g, "").slice(0, 10);
-    input.value = id;
-    if (id.length === 10) {
-      localStorage.setItem("lastKonamiID", id);
-      renderMatch(id);
-      renderHistory(id);
-    } else {
-      container.innerHTML = "";
-      tabContent2.innerHTML = "";
-    }
-  });
-
-  currentTab.addEventListener("click", () => {
-    tabContent1.style.display = "block";
-    tabContent2.style.display = "none";
-    currentTab.classList.add("active");
-    historyTab.classList.remove("active");
-  });
-
-  historyTab.addEventListener("click", () => {
-    tabContent1.style.display = "none";
-    tabContent2.style.display = "block";
-    historyTab.classList.add("active");
-    currentTab.classList.remove("active");
-  });
-
-  async function cargarArchivoTournament() {
+async function loadTournamentFile() {
+  const files = ['Torneo.Tournament', 'torneo.Tournament'];
+  for (const file of files) {
     try {
-      const res = await fetch("./Torneo.Tournament");
-      if (!res.ok) throw new Error("No se pudo cargar el archivo");
-      const text = await res.text();
-      const parser = new DOMParser();
-      const xml = parser.parseFromString(text, "application/xml");
-      tournamentData = parseTournament(xml);
-      rondaInfo.textContent = "Ronda: " + tournamentData.currentRound;
-      const savedID = localStorage.getItem("lastKonamiID");
-      if (savedID) {
-        input.value = savedID;
-        renderMatch(savedID);
-        renderHistory(savedID);
+      const res = await fetch(file);
+      if (res.ok) {
+        const text = await res.text();
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(text, 'application/xml');
+        return xmlDoc;
       }
-    } catch (e) {
-      rondaInfo.textContent = "Archivo .Tournament no encontrado.";
-    }
+    } catch (e) {}
+  }
+  document.getElementById("rondaInfo").innerText = "Archivo .Tournament no encontrado.";
+  return null;
+}
+
+function parsePlayers(xml) {
+  const players = {};
+  xml.querySelectorAll("TournPlayer").forEach(p => {
+    const id = p.querySelector("ID")?.textContent;
+    const fullName = `${p.querySelector("FirstName")?.textContent} ${p.querySelector("LastName")?.textContent}`;
+    const rank = parseInt(p.querySelector("Rank")?.textContent || "0");
+    players[id] = { name: fullName.trim(), id, rank };
+  });
+  return players;
+}
+
+function parseMatches(xml) {
+  const matches = [];
+  xml.querySelectorAll("TournMatch").forEach(m => {
+    const p1 = m.querySelectorAll("Player")[0]?.textContent;
+    const p2 = m.querySelectorAll("Player")[1]?.textContent;
+    const table = m.querySelector("Table")?.textContent;
+    const round = parseInt(m.querySelector("Round")?.textContent || "0");
+    const winner = m.querySelector("Winner")?.textContent;
+    matches.push({ round, table, p1, p2, winner });
+  });
+  return matches;
+}
+
+function getCurrentRound(xml) {
+  return parseInt(xml.querySelector("CurrentRound")?.textContent || "0");
+}
+
+function filterByID(id, players, matches, currentRound) {
+  const currentMatch = matches.find(
+    m => m.round === currentRound && (m.p1 === id || m.p2 === id)
+  );
+
+  const container = document.getElementById("tableContainer");
+  const historyContainer = document.getElementById("historyContainer");
+  container.innerHTML = "";
+  historyContainer.innerHTML = "";
+
+  if (!currentMatch) {
+    container.innerHTML = "<p>No estás asignado en esta ronda.</p>";
+    return;
   }
 
-  function parseTournament(xml) {
-    const players = Array.from(xml.querySelectorAll("TournPlayer")).map(p => ({
-      id: p.querySelector("Player > ID").textContent,
-      name:
-        p.querySelector("Player > FirstName").textContent +
-        " " +
-        p.querySelector("Player > LastName").textContent,
-      rank: parseInt(p.querySelector("Rank").textContent),
-    }));
+  const rivalID = currentMatch.p1 === id ? currentMatch.p2 : currentMatch.p1;
+  const mi = players[id];
+  const rival = players[rivalID];
 
-    const matches = Array.from(xml.querySelectorAll("TournMatch")).map(m => ({
-      player1: m.querySelectorAll("Player")[0].textContent,
-      player2: m.querySelectorAll("Player")[1].textContent,
-      round: parseInt(m.querySelector("Round").textContent),
-      table: m.querySelector("Table").textContent,
-      winner: m.querySelector("Winner").textContent,
-      status: m.querySelector("Status").textContent,
-    }));
-
-    const currentRound = parseInt(xml.querySelector("CurrentRound").textContent);
-
-    return { players, matches, currentRound };
-  }
-
-  function getPlayer(id) {
-    return tournamentData.players.find(p => p.id === id);
-  }
-
-  function renderMatch(id) {
-    const match = tournamentData.matches.find(
-      m =>
-        m.round === tournamentData.currentRound &&
-        (m.player1 === id || m.player2 === id)
-    );
-
-    if (!match) {
-      container.innerHTML = "<p>No tienes duelo esta ronda.</p>";
-      return;
-    }
-
-    const me = getPlayer(id);
-    const opponent = getPlayer(match.player1 === id ? match.player2 : match.player1);
-
-    container.innerHTML = `
-      <div style="text-align:center; margin-bottom: 20px;">
-        <h2 style="font-size: 32px; color: #D62828;">Mesa ${match.table}</h2>
+  // Mostrar mesa actual
+  container.innerHTML = `
+    <div style="text-align:center; margin-bottom: 20px;">
+      <h2 style="font-size: 32px; color: #D62828;">Mesa ${currentMatch.table}</h2>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 20px; align-items: center;">
+      <div style="background:#1E1E1E; border-radius:10px; padding:10px 15px 15px; width:100%; max-width:400px; text-align:center; border-top: 5px solid #D62828;">
+        <p style="margin:4px 0; font-weight:bold; color:#FFFFFF; font-size: 18px;">${mi.name}</p>
+        <p style="margin:4px 0; font-size:14px; color:#CCCCCC;">${mi.id}</p>
       </div>
 
-      <div style="display: flex; flex-direction: column; gap: 20px; align-items: center;">
-        <div style="background: linear-gradient(to bottom, #D62828 50%, #1E1E1E 50%); border-radius:10px; padding:12px; width:100%; max-width:400px; text-align:center;">
-          <p style="margin:0 3px; font-weight:bold; color:#fff; font-size:18px;">${me.name}</p>
-          <p style="margin:4px 0 0; font-size: 14px; color: #999;"><strong>ID:</strong> ${me.id}</p>
-        </div>
+      <div style="text-align:center; font-size: 20px; font-weight:bold; color: #D3D3D3;">VS</div>
 
-        <div style="text-align:center; font-size: 20px; font-weight:bold; color: #D3D3D3;">VS</div>
+      <div style="background:#1E1E1E; border-radius:10px; padding:10px 15px 15px; width:100%; max-width:400px; text-align:center; border-bottom: 5px solid #0033cc;">
+        <p style="margin:4px 0; font-weight:bold; color:#FFFFFF; font-size: 18px;">${rival.name}</p>
+        <p style="margin:4px 0; font-size:14px; color:#CCCCCC;">${rival.id}</p>
+      </div>
+    </div>
+  `;
 
-        <div style="background: linear-gradient(to bottom, #1E1E1E 50%, #0077CC 50%); border-radius:10px; padding:12px; width:100%; max-width:400px; text-align:center;">
-          <p style="margin:0 3px; font-weight:bold; color:#fff; font-size:18px;">${opponent.name}</p>
-          <p style="margin:4px 0 0; font-size: 14px; color: #999;"><strong>ID:</strong> ${opponent.id}</p>
-        </div>
+  // Historial ordenado de ronda más reciente a más antigua
+  const history = matches
+    .filter(m => m.p1 === id || m.p2 === id)
+    .filter(m => m.round < currentRound)
+    .sort((a, b) => b.round - a.round);
+
+  if (history.length > 0) {
+    const standing = players[id]?.rank ? `Lugar actual: ${players[id].rank}` : "";
+    historyContainer.innerHTML = `<h3 style="color:#fff; text-align:center;">${standing}</h3><br>`;
+  }
+
+  history.forEach(m => {
+    const esGanador = m.winner === id;
+    const esEmpate = m.winner === "0";
+    const rivalId = m.p1 === id ? m.p2 : m.p1;
+    const rivalName = players[rivalId]?.name || "Desconocido";
+    const color = esEmpate ? "#ccc" : esGanador ? "#4CAF50" : "#D62828";
+    const resultado = esEmpate ? "Empate" : esGanador ? "Victoria" : "Derrota";
+
+    historyContainer.innerHTML += `
+      <div style="border: 2px solid ${color}; border-radius: 10px; padding: 10px; margin: 10px 0;">
+        <strong style="color:${color};">${resultado}</strong><br>
+        <span style="color:#fff;">vs. ${rivalName}</span><br>
+        <span style="color:#999;">Ronda ${m.round}</span>
       </div>
     `;
-  }
+  });
+}
 
-  function renderHistory(id) {
-    const matches = tournamentData.matches
-      .filter(m => (m.player1 === id || m.player2 === id) && m.round < tournamentData.currentRound)
-      .sort((a, b) => b.round - a.round);
+document.addEventListener("DOMContentLoaded", async () => {
+  const xml = await loadTournamentFile();
+  if (!xml) return;
 
-    const me = getPlayer(id);
-    if (!me) {
-      tabContent2.innerHTML = "<p>No se encontró tu información.</p>";
-      return;
-    }
+  const currentRound = getCurrentRound(xml);
+  const players = parsePlayers(xml);
+  const matches = parseMatches(xml);
+  document.getElementById("rondaInfo").innerText = "Ronda actual: " + currentRound;
 
-    let html = `<h2 style="text-align:center; color:#fff;">Standing actual: ${me.rank}° lugar</h2>`;
+  const saved = localStorage.getItem("lastKonamiID");
+  const input = document.getElementById("searchID");
 
-    if (matches.length === 0) {
-      html += "<p>No tienes historial de rondas anteriores.</p>";
+  function handleInput(id) {
+    if (/^\d{10}$/.test(id)) {
+      localStorage.setItem("lastKonamiID", id);
+      filterByID(id, players, matches, currentRound);
     } else {
-      html += `<ul style="list-style:none; padding:0;">`;
-
-      matches.forEach(m => {
-        const isPlayer1 = m.player1 === id;
-        const opponent = getPlayer(isPlayer1 ? m.player2 : m.player1);
-        const resultado =
-          m.winner === id
-            ? `<span style="color: #4CAF50;">Victoria</span>`
-            : m.winner === "0"
-            ? `<span style="color: #999;">Empate</span>`
-            : `<span style="color: #F44336;">Derrota</span>`;
-
-        html += `
-          <li style="margin: 10px 0; padding: 10px; background: #1E1E1E; border-radius: 8px;">
-            <strong style="color:#fff;">Ronda ${m.round}</strong><br>
-            ${resultado} vs <strong style="color:#fff;">${opponent.name}</strong> (ID: ${opponent.id})
-          </li>
-        `;
-      });
-
-      html += `</ul>`;
+      document.getElementById("tableContainer").innerHTML = "";
+      document.getElementById("historyContainer").innerHTML = "";
     }
-
-    tabContent2.innerHTML = html;
   }
 
-  cargarArchivoTournament();
+  if (saved) {
+    input.value = saved;
+    handleInput(saved);
+  }
+
+  input.addEventListener("input", e => {
+    const value = e.target.value.replace(/\D/g, "").slice(0, 10);
+    input.value = value;
+    handleInput(value);
+  });
+
+  // Tab switching
+  document.getElementById("btnRonda").addEventListener("click", () => {
+    document.getElementById("tableContainer").style.display = "block";
+    document.getElementById("historyContainer").style.display = "none";
+  });
+  document.getElementById("btnHistorial").addEventListener("click", () => {
+    document.getElementById("tableContainer").style.display = "none";
+    document.getElementById("historyContainer").style.display = "block";
+  });
 });
