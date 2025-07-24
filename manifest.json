@@ -1,14 +1,20 @@
 {
-  "name": "Yu-Gi-Oh! Emparejamientos",
+  "name": "Emparejamientos Yu-Gi-Oh!",
   "short_name": "Emparejamientos",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#121212",
   "theme_color": "#D62828",
-  "description": "Consulta tu mesa y rivales en el torneo Yu-Gi-Oh!",
-  "icons": [{
-    "src": "LCG.png",
-    "sizes": "192x192",
-    "type": "image/png"
-  }]
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
 }
