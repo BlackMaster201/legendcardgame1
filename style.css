@@ -1,0 +1,417 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #121212;
+  color: #fff;
+  margin: 0;
+  padding: 20px;
+  user-select: none;
+}
+
+header {
+  background-color: rgba(0, 0, 0, 0.8);
+  padding: 20px;
+  text-align: center;
+  border-radius: 10px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 28px;
+  color: #D62828;
+}
+
+h2 {
+  margin: 10px 0 0;
+  font-size: 20px;
+  color: #D3D3D3;
+}
+
+.container {
+  margin-top: 20px;
+  background: linear-gradient(rgba(18, 18, 18, 0.96), rgba(18, 18, 18, 0.96)),
+              url('./LCG.png') no-repeat center 55%;
+  background-size: 220px;
+  background-attachment: local;
+  padding: 20px;
+  border-radius: 8px;
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+input[type="text"] {
+  margin: 10px auto 20px;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  width: 100%;
+  max-width: 400px;
+  font-size: 16px;
+  text-align: center;
+  user-select: text;
+}
+
+#tableContainer {
+  width: 100%;
+}
+
+.tab-button {
+  margin: 10px 5px 0;
+  padding: 10px 20px;
+  background-color: #1E1E1E;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.tab-button.active {
+  background-color: #D62828;
+}
+
+.player-box {
+  border-radius: 10px;
+  width: 100%;
+  max-width: 400px;
+  padding: 12px 15px;
+  text-align: center;
+  position: relative;
+  margin-bottom: 15px;
+  background-color: #1E1E1E;
+}
+
+.player-box .name {
+  font-weight: bold;
+  color: white;
+}
+
+.player-box .id {
+  font-size: 14px;
+  color: #aaa;
+}
+
+.player-box::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 6px;
+  width: 100%;
+  border-radius: 10px 10px 0 0;
+}
+
+.player-box.red::before {
+  background-color: #D62828;
+}
+
+.player-box.blue::before {
+  background-color: #247BA0;
+}
+
+.historial-item {
+  margin-bottom: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: #1E1E1E;
+}
+
+.historial-victoria {
+  border-left: 6px solid #28a745;
+}
+
+.historial-derrota {
+  border-left: 6px solid #dc3545;
+}
+
+.historial-empate {
+  border-left: 6px solid #6c757d;
+}
+
+@media (max-width: 600px) {
+  h1 { font-size: 22px; }
+  h2 { font-size: 16px; }
+  input[type="text"] {
+    font-size: 14px;
+    width: calc(100% - 40px);
+    margin: 10px auto 20px;
+  }
+}
+body {
+  font-family: Arial, sans-serif;
+  background-color: #121212;
+  color: #fff;
+  margin: 0;
+  padding: 20px;
+  user-select: none;
+}
+
+header {
+  background-color: rgba(0, 0, 0, 0.8);
+  padding: 20px;
+  text-align: center;
+  border-radius: 10px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 28px;
+  color: #D62828;
+}
+
+h2 {
+  margin: 10px 0 0;
+  font-size: 20px;
+  color: #D3D3D3;
+}
+
+.container {
+  margin-top: 20px;
+  background: linear-gradient(rgba(18, 18, 18, 0.96), rgba(18, 18, 18, 0.96)),
+              url('./LCG.png') no-repeat center 55%;
+  background-size: 220px;
+  background-attachment: local;
+  padding: 20px;
+  border-radius: 8px;
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+input[type="text"] {
+  margin: 10px auto 20px;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  width: 100%;
+  max-width: 400px;
+  font-size: 16px;
+  text-align: center;
+  user-select: text;
+}
+
+#tableContainer {
+  width: 100%;
+}
+
+.tab-button {
+  margin: 10px 5px 0;
+  padding: 10px 20px;
+  background-color: #1E1E1E;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.tab-button.active {
+  background-color: #D62828;
+}
+
+.player-box {
+  border-radius: 10px;
+  width: 100%;
+  max-width: 400px;
+  padding: 12px 15px;
+  text-align: center;
+  position: relative;
+  margin-bottom: 15px;
+  background-color: #1E1E1E;
+}
+
+.player-box .name {
+  font-weight: bold;
+  color: white;
+}
+
+.player-box .id {
+  font-size: 14px;
+  color: #aaa;
+}
+
+.player-box::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 6px;
+  width: 100%;
+  border-radius: 10px 10px 0 0;
+}
+
+.player-box.red::before {
+  background-color: #D62828;
+}
+
+.player-box.blue::before {
+  background-color: #247BA0;
+}
+
+.historial-item {
+  margin-bottom: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: #1E1E1E;
+}
+
+.historial-victoria {
+  border-left: 6px solid #28a745;
+}
+
+.historial-derrota {
+  border-left: 6px solid #dc3545;
+}
+
+.historial-empate {
+  border-left: 6px solid #6c757d;
+}
+
+@media (max-width: 600px) {
+  h1 { font-size: 22px; }
+  h2 { font-size: 16px; }
+  input[type="text"] {
+    font-size: 14px;
+    width: calc(100% - 40px);
+    margin: 10px auto 20px;
+  }
+}
+body {
+  font-family: Arial, sans-serif;
+  background-color: #121212;
+  color: #fff;
+  margin: 0;
+  padding: 20px;
+  user-select: none;
+}
+
+header {
+  background-color: rgba(0, 0, 0, 0.8);
+  padding: 20px;
+  text-align: center;
+  border-radius: 10px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 28px;
+  color: #D62828;
+}
+
+h2 {
+  margin: 10px 0 0;
+  font-size: 20px;
+  color: #D3D3D3;
+}
+
+.container {
+  margin-top: 20px;
+  background: linear-gradient(rgba(18, 18, 18, 0.96), rgba(18, 18, 18, 0.96)),
+              url('./LCG.png') no-repeat center 55%;
+  background-size: 220px;
+  background-attachment: local;
+  padding: 20px;
+  border-radius: 8px;
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+input[type="text"] {
+  margin: 10px auto 20px;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  width: 100%;
+  max-width: 400px;
+  font-size: 16px;
+  text-align: center;
+  user-select: text;
+}
+
+#tableContainer {
+  width: 100%;
+}
+
+.tab-button {
+  margin: 10px 5px 0;
+  padding: 10px 20px;
+  background-color: #1E1E1E;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.tab-button.active {
+  background-color: #D62828;
+}
+
+.player-box {
+  border-radius: 10px;
+  width: 100%;
+  max-width: 400px;
+  padding: 12px 15px;
+  text-align: center;
+  position: relative;
+  margin-bottom: 15px;
+  background-color: #1E1E1E;
+}
+
+.player-box .name {
+  font-weight: bold;
+  color: white;
+}
+
+.player-box .id {
+  font-size: 14px;
+  color: #aaa;
+}
+
+.player-box::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 6px;
+  width: 100%;
+  border-radius: 10px 10px 0 0;
+}
+
+.player-box.red::before {
+  background-color: #D62828;
+}
+
+.player-box.blue::before {
+  background-color: #247BA0;
+}
+
+.historial-item {
+  margin-bottom: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: #1E1E1E;
+}
+
+.historial-victoria {
+  border-left: 6px solid #28a745;
+}
+
+.historial-derrota {
+  border-left: 6px solid #dc3545;
+}
+
+.historial-empate {
+  border-left: 6px solid #6c757d;
+}
+
+@media (max-width: 600px) {
+  h1 { font-size: 22px; }
+  h2 { font-size: 16px; }
+  input[type="text"] {
+    font-size: 14px;
+    width: calc(100% - 40px);
+    margin: 10px auto 20px;
+  }
+}
