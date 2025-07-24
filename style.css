@@ -3,140 +3,80 @@ body {
   background-color: #121212;
   color: #fff;
   margin: 0;
-  padding-bottom: 60px;
+  padding-bottom: 80px;
   user-select: none;
 }
-
 header {
-  background-color: rgba(0, 0, 0, 0.8);
-  padding: 20px;
   text-align: center;
-  border-radius: 10px;
-}
-
-h1 {
-  margin: 0;
-  font-size: 28px;
-  color: #D62828;
-}
-
-h2 {
-  margin: 10px 0 0;
-  font-size: 20px;
-  color: #D3D3D3;
-}
-
-.container {
-  margin-top: 20px;
   padding: 20px;
-  border-radius: 8px;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+.container {
+  padding: 20px;
+  background: linear-gradient(rgba(18, 18, 18, 0.96), rgba(18, 18, 18, 0.96)), url('LCG.png') no-repeat center 55%;
+  background-size: 220px;
+  background-attachment: local;
   min-height: 420px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: linear-gradient(rgba(18, 18, 18, 0.96), rgba(18, 18, 18, 0.96)),
-              url('./LCG.png') no-repeat center 55%;
-  background-size: 220px;
-  background-attachment: local;
 }
-
 input[type="text"] {
-  margin: 10px auto 20px;
+  margin-top: 10px;
   padding: 10px;
-  border: none;
   border-radius: 6px;
   width: 100%;
   max-width: 400px;
   font-size: 16px;
   text-align: center;
 }
-
-#tableContainer, #historyContainer {
-  width: 100%;
-  max-width: 480px;
-}
-
 footer {
   position: fixed;
   bottom: 0;
   width: 100%;
-  background-color: #000;
+  background-color: #1e1e1e;
   display: flex;
-  justify-content: space-around;
-  padding: 10px 0;
-  border-top: 1px solid #333;
+  justify-content: center;
+  gap: 20px;
+  padding: 10px;
 }
-
 footer button {
-  background-color: #D62828;
+  background-color: #333;
   color: white;
   border: none;
   padding: 10px 20px;
-  font-size: 16px;
-  border-radius: 6px;
-}
-
-footer button:last-child {
-  background-color: #0057D9;
-}
-
-.hidden {
-  display: none;
-}
-
-.match-box {
-  background: #1E1E1E;
-  border-radius: 10px;
-  padding: 12px;
-  margin: 10px 0;
-  text-align: center;
-  position: relative;
-}
-
-.match-box .name {
+  border-radius: 8px;
   font-weight: bold;
-  color: white;
-  margin-bottom: 4px;
+  cursor: pointer;
 }
-
-.match-box .konami-id {
-  font-size: 14px;
-  color: #AAA;
-}
-
-.match-box.red::before,
-.match-box.blue::after {
-  content: "";
-  display: block;
-  height: 6px;
-  width: 100%;
-  position: absolute;
-  left: 0;
-}
-
-.match-box.red::before {
-  top: 100%;
+footer button.active {
   background-color: #D62828;
 }
-
-.match-box.blue::after {
-  top: 100%;
-  background-color: #0057D9;
+h3 {
+  margin: 0;
+  font-weight: bold;
 }
-
-.history-entry {
+.konami-id {
+  color: #aaa;
+  font-size: 14px;
+}
+.card {
+  background: #1E1E1E;
   border-radius: 10px;
-  padding: 10px;
-  margin: 6px 0;
-  font-size: 16px;
+  padding: 10px 15px 15px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  margin-bottom: 20px;
+  border-top: 4px solid #D62828;
+  border-bottom: 4px solid #007BFF;
 }
-
-.win { background-color: #144d14; }
-.loss { background-color: #5a1b1b; }
-.draw { background-color: #444; }
-
-@media (max-width: 600px) {
-  h1 { font-size: 22px; }
-  h2 { font-size: 16px; }
-  input[type="text"] { font-size: 14px; }
+.vs-label {
+  text-align: center;
+  font-size: 20px;
+  font-weight: bold;
+  color: #D3D3D3;
 }
+.result-win { color: #4CAF50; }
+.result-loss { color: #F44336; }
+.result-draw { color: #B0BEC5; }
