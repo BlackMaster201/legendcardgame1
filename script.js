@@ -1,152 +1,170 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const input = document.getElementById("searchID");
-  const tableContainer = document.getElementById("tableContainer");
-  const historyContainer = document.getElementById("historyContainer");
-  const btnRonda = document.getElementById("btnRonda");
-  const btnHistorial = document.getElementById("btnHistorial");
-  const rondaInfo = document.getElementById("rondaInfo");
-  let currentPlayerID = "";
-  let currentRound = 0;
-  let finalized = false;
+// script.js
 
-  async function loadTournament() {
-    try {
-      const res = await fetch("1.txt");
-      if (!res.ok) throw new Error("Archivo no encontrado");
+let currentRound = 0;
+let fullPlayers = [];
+let matches = [];
+let finalized = false;
 
-      const text = await res.text();
-      const parser = new DOMParser();
-      const xml = parser.parseFromString(text, "text/xml");
+function parseTournamentXML(xmlText) {
+  const parser = new DOMParser();
+  const xml = parser.parseFromString(xmlText, "text/xml");
 
-      finalized = xml.querySelector("Finalized")?.textContent === "True";
+  // Detectar si el torneo está finalizado
+  finalized = xml.querySelector("Finalized")?.textContent.trim() === "True";
 
-      const rounds = Array.from(xml.querySelectorAll("Rounds > Round")).map(round => ({
-        number: parseInt(round.getAttribute("Number")),
-        matches: Array.from(round.querySelectorAll("Match")).map(match => ({
-          player1: match.getAttribute("Player1"),
-          player2: match.getAttribute("Player2"),
-          result: match.getAttribute("Result"),
-          table: match.getAttribute("Table")
-        }))
-      }));
+  // Obtener ronda actual
+  currentRound = parseInt(xml.querySelector("CurrentRound")?.textContent || "0", 10);
+  document.getElementById("rondaInfo").innerText = `Ronda: ${currentRound}`;
 
-      const standings = Array.from(xml.querySelectorAll("Standings > Standing")).map((s, i) => ({
-        id: s.getAttribute("Player"),
-        rank: i + 1
-      }));
+  // Obtener jugadores
+  fullPlayers = [...xml.querySelectorAll("TournPlayer")].map(tp => {
+    const id = tp.querySelector("ID")?.textContent.trim();
+    const nombre = `${tp.querySelector("FirstName")?.textContent.trim()} ${tp.querySelector("LastName")?.textContent.trim()}`;
+    const rank = parseInt(tp.querySelector("Rank")?.textContent || 0, 10);
+    return { id, nombre, rank };
+  });
 
-      currentRound = Math.max(...rounds.map(r => r.number));
-      rondaInfo.textContent = `Ronda: ${currentRound}`;
+  // Obtener matches
+  matches = [...xml.querySelectorAll("TournMatch")].map(m => {
+    return {
+      jugador1: m.querySelectorAll("Player")[0]?.textContent.trim(),
+      jugador2: m.querySelectorAll("Player")[1]?.textContent.trim(),
+      ronda: parseInt(m.querySelector("Round")?.textContent || "0", 10),
+      mesa: m.querySelector("Table")?.textContent.trim(),
+      status: m.querySelector("Status")?.textContent.trim(),
+      ganador: m.querySelector("Winner")?.textContent.trim()
+    };
+  });
+}
 
-      input.addEventListener("input", () => {
-        const id = input.value.trim().slice(0, 10);
-        input.value = id;
-        currentPlayerID = id;
-        localStorage.setItem("lastKonamiID", id);
-        showRonda(rounds, id);
-        showHistorial(rounds, standings, id);
-      });
+function buscarJugadorPorID(id) {
+  return fullPlayers.find(p => p.id === id);
+}
 
-      const savedID = localStorage.getItem("lastKonamiID");
-      if (savedID) {
-        input.value = savedID;
-        currentPlayerID = savedID;
-        showRonda(rounds, savedID);
-        showHistorial(rounds, standings, savedID);
-      }
-
-      btnRonda.addEventListener("click", () => {
-        btnRonda.classList.add("active");
-        btnHistorial.classList.remove("active");
-        tableContainer.style.display = "block";
-        historyContainer.style.display = "none";
-      });
-
-      btnHistorial.addEventListener("click", () => {
-        btnHistorial.classList.add("active");
-        btnRonda.classList.remove("active");
-        tableContainer.style.display = "none";
-        historyContainer.style.display = "block";
-      });
-
-    } catch (e) {
-      rondaInfo.textContent = "Archivo 1.txt no encontrado.";
-    }
+function mostrarRonda(id) {
+  const match = matches.find(m => m.ronda === currentRound && (m.jugador1 === id || m.jugador2 === id));
+  const container = document.getElementById("tableContainer");
+  const history = document.getElementById("historyContainer");
+  container.innerHTML = "";
+  history.innerHTML = "";
+  if (!match) {
+    container.innerHTML = `<p>No se encontró tu duelo en la ronda ${currentRound}.</p>`;
+    return;
   }
+  const yo = match.jugador1 === id ? match.jugador1 : match.jugador2;
+  const rival = match.jugador1 === id ? match.jugador2 : match.jugador1;
 
-  function showRonda(rounds, id) {
-    const round = rounds.find(r => r.number === currentRound);
-    const match = round?.matches.find(m => m.player1 === id || m.player2 === id);
-    if (!match) return (tableContainer.innerHTML = "<p>No encontrado en la ronda actual.</p>");
+  const yoData = buscarJugadorPorID(yo);
+  const rivalData = buscarJugadorPorID(rival);
 
-    const isP1 = match.player1 === id;
-    const opponent = isP1 ? match.player2 : match.player1;
-
-    tableContainer.innerHTML = `
-      <div style="text-align:center; margin-bottom: 20px;">
-        <h2 style="font-size: 32px; color: #D62828;">Mesa ${match.table}</h2>
-      </div>
-
+  container.innerHTML = `
+    <div style="text-align:center; margin-bottom: 20px;">
+      <h2 style="font-size: 32px; color: #D62828;">Mesa ${match.mesa}</h2>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:20px;align-items:center;">
       <div class="card">
-        <h3>${isP1 ? getPlayerName(match.player1) : getPlayerName(match.player2)}</h3>
-        <p class="konami-id">${isP1 ? match.player1 : match.player2}</p>
-        <div class="vs-label">VS</div>
-        <h3>${isP1 ? getPlayerName(match.player2) : getPlayerName(match.player1)}</h3>
-        <p class="konami-id">${isP1 ? match.player2 : match.player1}</p>
+        <h3>${yoData?.nombre}</h3>
+        <p class="konami-id">${yo}</p>
+      </div>
+      <div class="vs-label">VS</div>
+      <div class="card">
+        <h3>${rivalData?.nombre}</h3>
+        <p class="konami-id">${rival}</p>
+      </div>
+    </div>
+  `;
+}
+
+function mostrarHistorial(id) {
+  const container = document.getElementById("historyContainer");
+  const player = buscarJugadorPorID(id);
+  const standing = player?.rank;
+
+  const historial = matches.filter(m => m.jugador1 === id || m.jugador2 === id)
+    .filter(m => finalized || m.ronda < currentRound)
+    .sort((a, b) => b.ronda - a.ronda);
+
+  container.innerHTML = `<h2 style="text-align:center;">Standing: ${
+    standing === 1 ? "🥇 1" :
+    standing === 2 ? "🥈 2" :
+    standing === 3 ? "🥉 3" : standing
+  }</h2>`;
+
+  for (const duelo of historial) {
+    const esJugador1 = duelo.jugador1 === id;
+    const miId = esJugador1 ? duelo.jugador1 : duelo.jugador2;
+    const rivalId = esJugador1 ? duelo.jugador2 : duelo.jugador1;
+    const rivalData = buscarJugadorPorID(rivalId);
+
+    let claseResultado = "result-draw";
+    if (duelo.ganador === miId) claseResultado = "result-win";
+    else if (duelo.ganador === rivalId) claseResultado = "result-loss";
+
+    container.innerHTML += `
+      <div class="card">
+        <h3>Ronda ${duelo.ronda}</h3>
+        <p class="${claseResultado}">VS ${rivalData?.nombre || "Desconocido"}</p>
       </div>
     `;
   }
+}
 
-  function showHistorial(rounds, standings, id) {
-    const filtered = rounds
-      .filter(r => finalized || r.number !== currentRound)
-      .map(r => {
-        const match = r.matches.find(m => m.player1 === id || m.player2 === id);
-        if (!match) return null;
-        const isP1 = match.player1 === id;
-        const opponentID = isP1 ? match.player2 : match.player1;
-        const result = match.result;
-        let outcome = "draw";
-
-        if ((isP1 && result === "A") || (!isP1 && result === "B")) {
-          outcome = "win";
-        } else if ((isP1 && result === "B") || (!isP1 && result === "A")) {
-          outcome = "loss";
-        }
-
-        const opponentStanding = standings.find(s => s.id === opponentID);
-        const position = opponentStanding?.rank || "-";
-
-        return {
-          round: r.number,
-          opponent: opponentID,
-          result: outcome,
-          position
-        };
-      })
-      .filter(Boolean)
-      .sort((a, b) => b.round - a.round);
-
-    const medal = rank => {
-      if (rank === 1) return "🥇";
-      if (rank === 2) return "🥈";
-      if (rank === 3) return "🥉";
-      return "";
-    };
-
-    historyContainer.innerHTML = filtered.map(h => `
-      <div class="card result-${h.result}">
-        <div><strong>Ronda ${h.round}</strong></div>
-        <div>Standing: ${medal(h.position)} ${h.position}</div>
-        <div>VS ${h.opponent}</div>
-      </div>
-    `).join("");
+function manejarBusqueda(id) {
+  if (!/^\d{10}$/.test(id)) return;
+  localStorage.setItem("lastKonamiID", id);
+  if (document.getElementById("btnRonda").classList.contains("active")) {
+    mostrarRonda(id);
+  } else {
+    mostrarHistorial(id);
   }
+}
 
-  function getPlayerName(id) {
-    // Placeholder: in future this should fetch real names
-    return id;
+async function cargarArchivoTournament() {
+  const archivos = ["Torneo.Tournament", "torneo.Tournament", "1.txt"];
+  for (const nombre of archivos) {
+    try {
+      const res = await fetch(nombre);
+      if (!res.ok) continue;
+      const xml = await res.text();
+      parseTournamentXML(xml);
+
+      const lastID = localStorage.getItem("lastKonamiID");
+      if (lastID) {
+        manejarBusqueda(lastID);
+        document.getElementById("searchID").value = lastID;
+      }
+      return;
+    } catch (e) {
+      console.warn("Error al leer archivo:", nombre);
+    }
   }
+  document.getElementById("rondaInfo").innerText = "Archivo .Tournament no encontrado.";
+}
 
-  loadTournament();
+document.getElementById("searchID").addEventListener("input", e => {
+  const val = e.target.value.replace(/\D/g, "").slice(0, 10);
+  e.target.value = val;
+  if (val.length === 10) manejarBusqueda(val);
 });
+
+document.getElementById("btnRonda").addEventListener("click", () => {
+  document.getElementById("btnRonda").classList.add("active");
+  document.getElementById("btnHistorial").classList.remove("active");
+  document.getElementById("tableContainer").style.display = "block";
+  document.getElementById("historyContainer").style.display = "none";
+
+  const val = document.getElementById("searchID").value;
+  if (val.length === 10) mostrarRonda(val);
+});
+
+document.getElementById("btnHistorial").addEventListener("click", () => {
+  document.getElementById("btnHistorial").classList.add("active");
+  document.getElementById("btnRonda").classList.remove("active");
+  document.getElementById("tableContainer").style.display = "none";
+  document.getElementById("historyContainer").style.display = "block";
+
+  const val = document.getElementById("searchID").value;
+  if (val.length === 10) mostrarHistorial(val);
+});
+
+cargarArchivoTournament();
