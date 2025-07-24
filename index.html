@@ -1,0 +1,29 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Yu-Gi-Oh! Regional Qualifier 2025</title>
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#D62828" />
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js')
+          .then(() => console.log("Service Worker registrado"))
+          .catch(e => console.error("Error al registrar SW", e));
+      });
+
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        e.prompt();
+      });
+    }
+  </script>
+</head>
+<body>
+  <h1>Bienvenido a Yu-Gi-Oh! Emparejamientos</h1>
+  <script src="./app-tournament.js"></script>
+</body>
+</html>

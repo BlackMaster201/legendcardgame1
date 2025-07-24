@@ -1,0 +1,17 @@
+
+{
+  "name": "Yu-Gi-Oh! Emparejamientos",
+  "short_name": "Emparejamientos",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#D62828",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "LCG.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}
