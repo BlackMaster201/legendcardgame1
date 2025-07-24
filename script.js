@@ -1,0 +1,1 @@
+// script.js placeholder - replace with full working script
