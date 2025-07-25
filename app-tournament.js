@@ -1,16 +1,16 @@
 let tournamentData = null;
 let currentRound = null;
 
+function padId(id) {
+  return String(id).padStart(10, '0');
+}
+
 fetch('1.txt')
-  .then(response => response.text())
+  .then(res => res.text())
   .then(str => {
     const parser = new DOMParser();
-    const xml = parser.parseFromString(str, 'text/xml');
-    tournamentData = xml;
-
-    const currentRoundNode = tournamentData.querySelector('CurrentRound');
-    currentRound = parseInt(currentRoundNode?.textContent || "0", 10);
-
+    tournamentData = parser.parseFromString(str, 'text/xml');
+    currentRound = parseInt(tournamentData.querySelector('CurrentRound')?.textContent || "0", 10);
     const label = document.getElementById('rondaInfo');
     if (label) label.textContent = `Ronda: ${currentRound}`;
   })
@@ -19,75 +19,102 @@ fetch('1.txt')
     if (label) label.textContent = 'No se encontró el archivo de torneo.';
   });
 
-function buscarEmparejamientos() {
-  const input = document.getElementById('konamiId').value.trim();
-  if (!tournamentData || !/^\d{10}$/.test(input)) return;
+function buscarEmparejamientos(modo = 'ronda') {
+  const inputRaw = document.getElementById('konamiId')?.value.trim();
+  const input = padId(inputRaw);
+  const contenedor = document.getElementById('resultado');
 
-  localStorage.setItem('konamiId', input);
+  if (!tournamentData || !input) return;
 
   const matches = Array.from(tournamentData.querySelectorAll('TournMatch'));
   const players = Array.from(tournamentData.querySelectorAll('TournPlayer'));
+  const finalized = tournamentData.querySelector('Finalized')?.textContent === 'True';
 
   const historial = [];
-  let encontrado = false;
+  let actual = null;
 
   matches.forEach(match => {
-    const p1 = match.querySelectorAll('Player')[0]?.textContent || "";
-    const p2 = match.querySelectorAll('Player')[1]?.textContent || "";
-    const round = match.querySelector('Round')?.textContent || "0";
-    const winner = match.querySelector('Winner')?.textContent || "";
+    const p1 = padId(match.querySelectorAll('Player')[0]?.textContent || "");
+    const p2 = padId(match.querySelectorAll('Player')[1]?.textContent || "");
+    const round = parseInt(match.querySelector('Round')?.textContent || "0", 10);
+    const winner = padId(match.querySelector('Winner')?.textContent || "");
 
     if (input === p1 || input === p2) {
-      encontrado = true;
       const oponente = input === p1 ? p2 : p1;
       let resultado = 'Empate';
       if (winner === input) resultado = 'Victoria';
       else if (winner === oponente) resultado = 'Derrota';
 
-      historial.push({ ronda: parseInt(round, 10), oponente, resultado });
+      const item = { ronda: round, oponente, resultado };
+      historial.push(item);
+      if (round === currentRound) actual = item;
     }
   });
 
-  const contenedor = document.getElementById('resultado');
+  const yo = players.find(p => padId(p.querySelector('ID')?.textContent) === input);
+  const standing = yo?.querySelector('Standing')?.textContent || '?';
 
-  if (!encontrado) {
-    contenedor.innerHTML = 'No se encontró el Konami ID.';
+  if (!yo) {
+    contenedor.innerHTML = '<p>No se encontró el Konami ID.</p>';
     return;
   }
 
   historial.sort((a, b) => b.ronda - a.ronda);
-  contenedor.innerHTML = '<h2>Historial:</h2>';
 
-  historial.forEach(({ ronda, oponente, resultado }) => {
-    const player = players.find(p => p.querySelector('ID')?.textContent === oponente);
-    const nombre = player
-      ? `${player.querySelector('FirstName')?.textContent} ${player.querySelector('LastName')?.textContent}`
+  if (modo === 'ronda') {
+    if (!actual && !finalized) {
+      contenedor.innerHTML = '<p>No hay emparejamiento para esta ronda.</p>';
+      return;
+    }
+
+    const oponenteData = players.find(p => padId(p.querySelector('ID')?.textContent) === actual.oponente);
+    const nombre = oponenteData
+      ? `${oponenteData.querySelector('FirstName')?.textContent} ${oponenteData.querySelector('LastName')?.textContent}`
       : 'Oponente desconocido';
 
-    const color =
-      resultado === 'Victoria'
-        ? '#4CAF50'
-        : resultado === 'Derrota'
-        ? '#F44336'
-        : '#9E9E9E';
+    const miNombre = `${yo.querySelector('FirstName')?.textContent} ${yo.querySelector('LastName')?.textContent}`;
 
-    const caja = document.createElement('div');
-    caja.style.backgroundColor = color;
-    caja.style.color = 'white';
-    caja.style.padding = '10px';
-    caja.style.borderRadius = '10px';
-    caja.style.marginBottom = '10px';
-    caja.style.fontWeight = 'bold';
-    caja.style.textAlign = 'center';
-    caja.textContent = `Ronda ${ronda} - ${resultado} vs ${nombre}`;
-    contenedor.appendChild(caja);
-  });
+    contenedor.innerHTML = `
+      <div class="card red">
+        <h3>${miNombre}</h3>
+        <p class="konami-id">${input}</p>
+      </div>
+      <div class="vs-label">VS</div>
+      <div class="card blue">
+        <h3>${nombre}</h3>
+        <p class="konami-id">${actual.oponente}</p>
+      </div>
+    `;
+  } else {
+    contenedor.innerHTML = `<h2 style="text-align:center">Standing: ${formatStanding(standing)}</h2>`;
+    historial.forEach(item => {
+      if (!finalized && item.ronda === currentRound) return;
+
+      const oponente = players.find(p => padId(p.querySelector('ID')?.textContent) === item.oponente);
+      const nombre = oponente
+        ? `${oponente.querySelector('FirstName')?.textContent} ${oponente.querySelector('LastName')?.textContent}`
+        : 'Oponente desconocido';
+
+      const clase =
+        item.resultado === 'Victoria'
+          ? 'result-win'
+          : item.resultado === 'Derrota'
+          ? 'result-loss'
+          : 'result-draw';
+
+      contenedor.innerHTML += `
+        <div class="historial-item ${clase}">
+          Ronda ${item.ronda} - ${item.resultado} VS ${nombre}
+        </div>
+      `;
+    });
+  }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  const lastId = localStorage.getItem('konamiId');
-  if (lastId) {
-    document.getElementById('konamiId').value = lastId;
-    setTimeout(buscarEmparejamientos, 300);
-  }
-});
+function formatStanding(s) {
+  const n = parseInt(s, 10);
+  if (n === 1) return '🥇 1';
+  if (n === 2) return '🥈 2';
+  if (n === 3) return '🥉 3';
+  return s;
+}
