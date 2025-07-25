@@ -1,10 +1,6 @@
 let tournamentData = null;
 let currentRound = null;
 
-function padId(id) {
-  return String(id).padStart(10, '0');
-}
-
 fetch('1.txt')
   .then(response => response.text())
   .then(str => {
@@ -24,11 +20,10 @@ fetch('1.txt')
   });
 
 function buscarEmparejamientos() {
-  const inputRaw = document.getElementById('konamiId').value.trim();
-  const input = padId(inputRaw);
-  localStorage.setItem('konamiId', input);
+  const input = document.getElementById('konamiId').value.trim();
+  if (!tournamentData || input.length !== 10) return;
 
-  if (!tournamentData || !input) return;
+  localStorage.setItem('konamiId', input);
 
   const matches = Array.from(tournamentData.querySelectorAll('TournMatch'));
   const players = Array.from(tournamentData.querySelectorAll('TournPlayer'));
@@ -37,10 +32,10 @@ function buscarEmparejamientos() {
   let encontrado = false;
 
   matches.forEach(match => {
-    const p1 = padId(match.querySelectorAll('Player')[0]?.textContent || "");
-    const p2 = padId(match.querySelectorAll('Player')[1]?.textContent || "");
-    const round = match.querySelector('Round')?.textContent || "0";
-    const winner = padId(match.querySelector('Winner')?.textContent || "");
+    const p1 = match.querySelectorAll('Player')[0]?.textContent.trim() || "";
+    const p2 = match.querySelectorAll('Player')[1]?.textContent.trim() || "";
+    const round = parseInt(match.querySelector('Round')?.textContent || "0", 10);
+    const winner = match.querySelector('Winner')?.textContent.trim() || "";
 
     if (input === p1 || input === p2) {
       encontrado = true;
@@ -64,9 +59,9 @@ function buscarEmparejamientos() {
   contenedor.innerHTML = '<h2>Historial:</h2>';
 
   historial.forEach(({ ronda, oponente, resultado }) => {
-    const player = players.find(p => padId(p.querySelector('ID')?.textContent) === oponente);
+    const player = players.find(p => p.querySelector('ID')?.textContent.trim() === oponente);
     const nombre = player
-      ? `${player.querySelector('FirstName')?.textContent} ${player.querySelector('LastName')?.textContent}`
+      ? `${player.querySelector('FirstName')?.textContent.trim()} ${player.querySelector('LastName')?.textContent.trim()}`
       : 'Oponente desconocido';
 
     const color =
