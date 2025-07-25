@@ -1,3 +1,4 @@
+
 body {
   font-family: Arial, sans-serif;
   background-color: #121212;
@@ -6,17 +7,14 @@ body {
   padding-bottom: 80px;
   user-select: none;
 }
-
 header {
   text-align: center;
   padding: 20px;
   background-color: rgba(0, 0, 0, 0.8);
 }
-
-header h1 {
+.titulo {
   color: #D62828;
 }
-
 .container {
   padding: 20px;
   background: linear-gradient(rgba(18, 18, 18, 0.96), rgba(18, 18, 18, 0.96)), url('LCG.png') no-repeat center 55%;
@@ -27,7 +25,6 @@ header h1 {
   flex-direction: column;
   align-items: center;
 }
-
 input[type="text"] {
   margin-top: 10px;
   padding: 10px;
@@ -37,7 +34,6 @@ input[type="text"] {
   font-size: 16px;
   text-align: center;
 }
-
 footer {
   position: fixed;
   bottom: 0;
@@ -48,7 +44,6 @@ footer {
   gap: 20px;
   padding: 10px;
 }
-
 footer button {
   background-color: #333;
   color: white;
@@ -58,22 +53,17 @@ footer button {
   font-weight: bold;
   cursor: pointer;
 }
-
 footer button.active {
   background-color: #D62828;
 }
-
 h3 {
   margin: 0;
   font-weight: bold;
-  color: #fff;
 }
-
 .konami-id {
   color: #aaa;
   font-size: 14px;
 }
-
 .card {
   background: #1E1E1E;
   border-radius: 10px;
@@ -82,67 +72,15 @@ h3 {
   max-width: 400px;
   text-align: center;
   margin-bottom: 20px;
-  border-top: none;
-  border-bottom: none;
 }
-
-.card.jugador {
-  border-top: 4px solid #D62828;
-}
-
-.card.adversario {
-  border-bottom: 4px solid #007BFF;
-}
-
+.card.red { border-top: 4px solid #D62828; }
+.card.blue { border-bottom: 4px solid #007BFF; }
 .vs-label {
   text-align: center;
   font-size: 20px;
   font-weight: bold;
   color: #D3D3D3;
 }
-
 .result-win { color: #4CAF50; }
 .result-loss { color: #F44336; }
 .result-draw { color: #B0BEC5; }
-
-.match-history {
-  width: 100%;
-  max-width: 400px;
-  margin: 0 auto 15px;
-  display: flex;
-  align-items: center;
-  background: #1e1e1e;
-  border-radius: 10px;
-  overflow: hidden;
-  text-align: left;
-}
-
-.match-history .status-bar {
-  width: 8px;
-  height: 100%;
-}
-
-.match-history .details {
-  padding: 10px;
-  flex: 1;
-}
-
-.match-history .ronda {
-  font-weight: bold;
-  font-size: 16px;
-  color: #fff;
-  margin-bottom: 4px;
-}
-
-.match-history .nombre {
-  color: #fff;
-}
-
-.match-history .konami-id {
-  font-size: 14px;
-  color: #aaa;
-}
-
-.status-win { background-color: #4CAF50; }
-.status-loss { background-color: #F44336; }
-.status-draw { background-color: #B0BEC5; }
