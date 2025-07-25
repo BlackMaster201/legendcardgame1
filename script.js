@@ -1,170 +1,194 @@
-// script.js
-
-let currentRound = 0;
-let fullPlayers = [];
-let matches = [];
-let finalized = false;
-
-function parseTournamentXML(xmlText) {
-  const parser = new DOMParser();
-  const xml = parser.parseFromString(xmlText, "text/xml");
-
-  // Detectar si el torneo está finalizado
-  finalized = xml.querySelector("Finalized")?.textContent.trim() === "True";
-
-  // Obtener ronda actual
-  currentRound = parseInt(xml.querySelector("CurrentRound")?.textContent || "0", 10);
-  document.getElementById("rondaInfo").innerText = `Ronda: ${currentRound}`;
-
-  // Obtener jugadores
-  fullPlayers = [...xml.querySelectorAll("TournPlayer")].map(tp => {
-    const id = tp.querySelector("ID")?.textContent.trim();
-    const nombre = `${tp.querySelector("FirstName")?.textContent.trim()} ${tp.querySelector("LastName")?.textContent.trim()}`;
-    const rank = parseInt(tp.querySelector("Rank")?.textContent || 0, 10);
-    return { id, nombre, rank };
-  });
-
-  // Obtener matches
-  matches = [...xml.querySelectorAll("TournMatch")].map(m => {
-    return {
-      jugador1: m.querySelectorAll("Player")[0]?.textContent.trim(),
-      jugador2: m.querySelectorAll("Player")[1]?.textContent.trim(),
-      ronda: parseInt(m.querySelector("Round")?.textContent || "0", 10),
-      mesa: m.querySelector("Table")?.textContent.trim(),
-      status: m.querySelector("Status")?.textContent.trim(),
-      ganador: m.querySelector("Winner")?.textContent.trim()
-    };
-  });
+body {
+  font-family: Arial, sans-serif;
+  background-color: #121212;
+  color: #fff;
+  margin: 0;
+  padding-bottom: 80px;
+  user-select: none;
 }
 
-function buscarJugadorPorID(id) {
-  return fullPlayers.find(p => p.id === id);
+header {
+  text-align: center;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.8);
 }
 
-function mostrarRonda(id) {
-  const match = matches.find(m => m.ronda === currentRound && (m.jugador1 === id || m.jugador2 === id));
-  const container = document.getElementById("tableContainer");
-  const history = document.getElementById("historyContainer");
-  container.innerHTML = "";
-  history.innerHTML = "";
-  if (!match) {
-    container.innerHTML = `<p>No se encontró tu duelo en la ronda ${currentRound}.</p>`;
-    return;
-  }
-  const yo = match.jugador1 === id ? match.jugador1 : match.jugador2;
-  const rival = match.jugador1 === id ? match.jugador2 : match.jugador1;
-
-  const yoData = buscarJugadorPorID(yo);
-  const rivalData = buscarJugadorPorID(rival);
-
-  container.innerHTML = `
-    <div style="text-align:center; margin-bottom: 20px;">
-      <h2 style="font-size: 32px; color: #D62828;">Mesa ${match.mesa}</h2>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:20px;align-items:center;">
-      <div class="card">
-        <h3>${yoData?.nombre}</h3>
-        <p class="konami-id">${yo}</p>
-      </div>
-      <div class="vs-label">VS</div>
-      <div class="card">
-        <h3>${rivalData?.nombre}</h3>
-        <p class="konami-id">${rival}</p>
-      </div>
-    </div>
-  `;
+.main-title {
+  color: #D62828;
 }
 
-function mostrarHistorial(id) {
-  const container = document.getElementById("historyContainer");
-  const player = buscarJugadorPorID(id);
-  const standing = player?.rank;
-
-  const historial = matches.filter(m => m.jugador1 === id || m.jugador2 === id)
-    .filter(m => finalized || m.ronda < currentRound)
-    .sort((a, b) => b.ronda - a.ronda);
-
-  container.innerHTML = `<h2 style="text-align:center;">Standing: ${
-    standing === 1 ? "🥇 1" :
-    standing === 2 ? "🥈 2" :
-    standing === 3 ? "🥉 3" : standing
-  }</h2>`;
-
-  for (const duelo of historial) {
-    const esJugador1 = duelo.jugador1 === id;
-    const miId = esJugador1 ? duelo.jugador1 : duelo.jugador2;
-    const rivalId = esJugador1 ? duelo.jugador2 : duelo.jugador1;
-    const rivalData = buscarJugadorPorID(rivalId);
-
-    let claseResultado = "result-draw";
-    if (duelo.ganador === miId) claseResultado = "result-win";
-    else if (duelo.ganador === rivalId) claseResultado = "result-loss";
-
-    container.innerHTML += `
-      <div class="card">
-        <h3>Ronda ${duelo.ronda}</h3>
-        <p class="${claseResultado}">VS ${rivalData?.nombre || "Desconocido"}</p>
-      </div>
-    `;
-  }
+.container {
+  padding: 20px;
+  background: linear-gradient(rgba(18, 18, 18, 0.96), rgba(18, 18, 18, 0.96)), url('LCG.png') no-repeat center 55%;
+  background-size: 220px;
+  background-attachment: local;
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-function manejarBusqueda(id) {
-  if (!/^\d{10}$/.test(id)) return;
-  localStorage.setItem("lastKonamiID", id);
-  if (document.getElementById("btnRonda").classList.contains("active")) {
-    mostrarRonda(id);
-  } else {
-    mostrarHistorial(id);
-  }
+input[type="text"] {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 6px;
+  width: 100%;
+  max-width: 400px;
+  font-size: 16px;
+  text-align: center;
 }
 
-async function cargarArchivoTournament() {
-  const archivos = ["Torneo.Tournament", "torneo.Tournament", "1.txt"];
-  for (const nombre of archivos) {
-    try {
-      const res = await fetch(nombre);
-      if (!res.ok) continue;
-      const xml = await res.text();
-      parseTournamentXML(xml);
-
-      const lastID = localStorage.getItem("lastKonamiID");
-      if (lastID) {
-        manejarBusqueda(lastID);
-        document.getElementById("searchID").value = lastID;
-      }
-      return;
-    } catch (e) {
-      console.warn("Error al leer archivo:", nombre);
-    }
-  }
-  document.getElementById("rondaInfo").innerText = "Archivo .Tournament no encontrado.";
+footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background-color: #1e1e1e;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  padding: 10px;
 }
 
-document.getElementById("searchID").addEventListener("input", e => {
-  const val = e.target.value.replace(/\D/g, "").slice(0, 10);
-  e.target.value = val;
-  if (val.length === 10) manejarBusqueda(val);
-});
+footer button {
+  background-color: #333;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
 
-document.getElementById("btnRonda").addEventListener("click", () => {
-  document.getElementById("btnRonda").classList.add("active");
-  document.getElementById("btnHistorial").classList.remove("active");
-  document.getElementById("tableContainer").style.display = "block";
-  document.getElementById("historyContainer").style.display = "none";
+footer button.active {
+  background-color: #D62828;
+}
 
-  const val = document.getElementById("searchID").value;
-  if (val.length === 10) mostrarRonda(val);
-});
+.card {
+  background: #1E1E1E;
+  border-radius: 10px;
+  padding: 10px 15px 15px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  margin-bottom: 20px;
+  position: relative;
+}
 
-document.getElementById("btnHistorial").addEventListener("click", () => {
-  document.getElementById("btnHistorial").classList.add("active");
-  document.getElementById("btnRonda").classList.remove("active");
-  document.getElementById("tableContainer").style.display = "none";
-  document.getElementById("historyContainer").style.display = "block";
+.card.red::before {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 4px;
+  background-color: #D62828;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
 
-  const val = document.getElementById("searchID").value;
-  if (val.length === 10) mostrarHistorial(val);
-});
+.card.blue::after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 4px;
+  background-color: #007BFF;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
 
-cargarArchivoTournament();
+.konami-id {
+  color: #aaa;
+  font-size: 14px;
+}
+
+.vs-label {
+  text-align: center;
+  font-size: 20px;
+  font-weight: bold;
+  color: #D3D3D3;
+}
+
+.result-win {
+  color: #4CAF50;
+}
+
+.result-loss {
+  color: #F44336;
+}
+
+.result-draw {
+  color: #B0BEC5;
+}
+
+.history-card {
+  background: #1E1E1E;
+  border-radius: 10px;
+  padding: 10px 15px;
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.history-ronda {
+  font-weight: bold;
+  width: 100%;
+  padding: 6px;
+  text-align: left;
+}
+
+.history-ronda.result-win {
+  background-color: #4CAF50;
+}
+
+.history-ronda.result-loss {
+  background-color: #F44336;
+}
+
+.history-ronda.result-draw {
+  background-color: #B0BEC5;
+}
+
+.history-body {
+  width: 100%;
+  text-align: center;
+}
+
+.history-body h4 {
+  font-weight: bold;
+  color: white;
+  margin: 6px 0 2px;
+}
+
+.history-body .konami-id {
+  font-size: 13px;
+  color: #aaa;
+  margin: 0;
+}
+
+.standing-title {
+  font-weight: bold;
+  font-size: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.medal-gold::before {
+  content: "\1F947 ";
+}
+
+.medal-silver::before {
+  content: "\1F948 ";
+}
+
+.medal-bronze::before {
+  content: "\1F949 ";
+}
