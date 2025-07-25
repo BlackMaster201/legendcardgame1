@@ -9,22 +9,22 @@ fetch('1.txt')
     const xml = parser.parseFromString(str, 'text/xml');
     tournamentData = xml;
 
-    // Obtener la ronda actual
     const currentRoundNode = tournamentData.querySelector('CurrentRound');
     currentRound = parseInt(currentRoundNode?.textContent || "0", 10);
 
-    document.getElementById('rondaLabel').textContent = `Ronda: ${currentRound}`;
+    const label = document.getElementById('rondaInfo');
+    if (label) label.textContent = `Ronda: ${currentRound}`;
   })
   .catch(() => {
-    document.getElementById('rondaLabel').textContent = 'No se encontró el archivo de torneo.';
+    const label = document.getElementById('rondaInfo');
+    if (label) label.textContent = 'No se encontró el archivo de torneo.';
   });
 
-// Formateo con ceros a la izquierda para IDs
+// Añade ceros al inicio si faltan
 function padId(id) {
-  return id.toString().padStart(10, '0');
+  return id?.toString().padStart(10, '0') ?? '';
 }
 
-// Función principal de búsqueda
 function buscarEmparejamientos() {
   const input = document.getElementById('konamiId').value.trim();
   localStorage.setItem('konamiId', input);
@@ -54,14 +54,14 @@ function buscarEmparejamientos() {
     }
   });
 
+  const contenedor = document.getElementById('resultado');
+
   if (!encontrado) {
-    document.getElementById('resultado').innerHTML = 'No se encontró el Konami ID.';
+    contenedor.innerHTML = 'No se encontró el Konami ID.';
     return;
   }
 
-  // Mostrar historial en orden descendente
   historial.sort((a, b) => b.ronda - a.ronda);
-  const contenedor = document.getElementById('resultado');
   contenedor.innerHTML = '<h2>Historial:</h2>';
 
   historial.forEach(({ ronda, oponente, resultado }) => {
@@ -72,10 +72,10 @@ function buscarEmparejamientos() {
 
     const color =
       resultado === 'Victoria'
-        ? 'green'
+        ? '#4CAF50'
         : resultado === 'Derrota'
-        ? 'red'
-        : 'gray';
+        ? '#F44336'
+        : '#9E9E9E';
 
     const caja = document.createElement('div');
     caja.style.backgroundColor = color;
@@ -84,12 +84,13 @@ function buscarEmparejamientos() {
     caja.style.borderRadius = '10px';
     caja.style.marginBottom = '10px';
     caja.style.fontWeight = 'bold';
+    caja.style.textAlign = 'center';
     caja.textContent = `Ronda ${ronda} - ${resultado} vs ${nombre}`;
     contenedor.appendChild(caja);
   });
 }
 
-// Restaurar búsqueda previa al recargar
+// Al cargar, restaurar Konami ID
 document.addEventListener('DOMContentLoaded', () => {
   const lastId = localStorage.getItem('konamiId');
   if (lastId) {
