@@ -1,43 +1,34 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Yu-Gi-Oh! Regional Qualifier 2025</title>
-  <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="styles.css" />
-  <script src="app-tournament.js" defer></script>
-  <script src="script.js" defer></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('service-worker.js');
-      });
+document.addEventListener("DOMContentLoaded", () => {
+  const input = document.getElementById("konamiId");
+  const btnRonda = document.getElementById("btnRonda");
+  const btnHistorial = document.getElementById("btnHistorial");
+  const resultado = document.getElementById("resultado");
+  const historial = document.getElementById("historial");
+
+  input.value = localStorage.getItem("konamiId") || "";
+  if (input.value.length === 10) {
+    buscarEmparejamientos();
+  }
+
+  btnRonda.addEventListener("click", () => {
+    btnRonda.classList.add("active");
+    btnHistorial.classList.remove("active");
+    resultado.style.display = "block";
+    historial.style.display = "none";
+  });
+
+  btnHistorial.addEventListener("click", () => {
+    btnHistorial.classList.add("active");
+    btnRonda.classList.remove("active");
+    resultado.style.display = "none";
+    historial.style.display = "block";
+  });
+
+  input.addEventListener("input", () => {
+    const value = input.value.replace(/\D/g, "").slice(0, 10);
+    input.value = value;
+    if (value.length === 10) {
+      buscarEmparejamientos();
     }
-  </script>
-</head>
-<body>
-  <header>
-    <h1>Yu-Gi-Oh! Regional Qualifier 2025</h1>
-    <h2 id="rondaInfo">Cargando ronda...</h2>
-  </header>
-
-  <div class="container">
-    <input
-      type="text"
-      id="konamiId"
-      placeholder="Ingresa tu Konami ID"
-      maxlength="10"
-      pattern="[0-9]*"
-      inputmode="numeric"
-    />
-    <div id="resultado"></div>
-    <div id="historial"></div>
-  </div>
-
-  <footer>
-    <button id="btnRonda" class="active">Ronda</button>
-    <button id="btnHistorial">Historial</button>
-  </footer>
-</body>
-</html>
+  });
+});
