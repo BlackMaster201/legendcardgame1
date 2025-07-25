@@ -1,1 +1,0 @@
-// app-tournament.js placeholder - replace with full working logic
