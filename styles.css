@@ -1,7 +1,7 @@
 body {
   font-family: Arial, sans-serif;
   background-color: #121212;
-  color: #fff;
+  color: white;
   margin: 0;
   padding-bottom: 80px;
   user-select: none;
@@ -11,10 +11,6 @@ header {
   text-align: center;
   padding: 20px;
   background-color: rgba(0, 0, 0, 0.8);
-}
-
-.title {
-  color: #D62828;
 }
 
 .container {
@@ -47,6 +43,7 @@ footer {
   justify-content: center;
   gap: 20px;
   padding: 10px;
+  z-index: 10;
 }
 
 footer button {
@@ -63,72 +60,36 @@ footer button.active {
   background-color: #D62828;
 }
 
-.card {
-  background: #1E1E1E;
-  border-radius: 10px;
-  padding: 10px 15px 15px;
-  width: 100%;
+.historial-entry {
+  background-color: #1E1E1E;
+  padding: 10px;
+  border-radius: 8px;
+  margin: 10px auto;
   max-width: 400px;
-  text-align: center;
-  margin-bottom: 20px;
-  border-top: 4px solid #D62828;
+  border-left: 6px solid;
 }
 
-.card.vs {
-  border-top: none;
-  border-bottom: 4px solid #007BFF;
-}
-
-.card-title {
-  margin: 0;
-  font-weight: bold;
-  font-size: 18px;
-}
-
-.konami-id {
-  color: #aaa;
-  font-size: 14px;
-}
-
-.vs-label {
-  text-align: center;
-  font-size: 20px;
-  font-weight: bold;
-  color: #D3D3D3;
-}
-
-.result-box {
-  background: #1e1e1e;
-  color: white;
-  padding: 10px 15px;
-  border-radius: 10px;
-  margin-bottom: 12px;
-  font-weight: bold;
-  text-align: left;
-  max-width: 400px;
-  border-left: 8px solid;
-}
-
-.result-win {
+.historial-entry.green {
   border-color: #4CAF50;
 }
 
-.result-loss {
+.historial-entry.red {
   border-color: #F44336;
 }
 
-.result-draw {
+.historial-entry.gray {
   border-color: #9E9E9E;
 }
 
-.result-box h3 {
-  margin: 0 0 6px;
-}
-
-.result-box p {
-  margin: 4px 0;
-}
-
-.result-box .label {
+.historial-entry h4 {
+  margin: 0;
+  font-size: 16px;
   font-weight: bold;
+}
+
+.historial-entry p {
+  margin: 5px 0 0;
+  color: white;
+  font-size: 14px;
+  text-align: center;
 }
