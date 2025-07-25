@@ -8,31 +8,16 @@
   <link rel="stylesheet" href="styles.css" />
   <script src="app-tournament.js" defer></script>
   <script src="script.js" defer></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('service-worker.js');
-      });
-    }
-  </script>
 </head>
 <body>
   <header>
-    <h1 style="color:#D62828">Yu-Gi-Oh! Regional Qualifier 2025</h1>
+    <h1>Yu-Gi-Oh! Regional Qualifier 2025</h1>
     <h2 id="rondaInfo">Cargando ronda...</h2>
   </header>
 
   <div class="container">
-    <input
-      type="text"
-      id="konamiId"
-      placeholder="Ingresa tu Konami ID (10 dígitos)"
-      maxlength="10"
-      pattern="[0-9]*"
-      inputmode="numeric"
-    />
-    <div id="tableContainer"></div>
-    <div id="historyContainer" style="display:none;"></div>
+    <input type="text" id="konamiId" placeholder="Ingresa tu Konami ID (10 dígitos)" maxlength="10" pattern="[0-9]*" inputmode="numeric" />
+    <div id="resultado"></div>
   </div>
 
   <footer>
