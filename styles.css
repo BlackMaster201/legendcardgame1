@@ -1,3 +1,4 @@
+
 body {
   font-family: Arial, sans-serif;
   background-color: #121212;
@@ -6,13 +7,11 @@ body {
   padding-bottom: 80px;
   user-select: none;
 }
-
 header {
   text-align: center;
   padding: 20px;
   background-color: rgba(0, 0, 0, 0.8);
 }
-
 .container {
   padding: 20px;
   background: linear-gradient(rgba(18, 18, 18, 0.96), rgba(18, 18, 18, 0.96)), url('LCG.png') no-repeat center 55%;
@@ -23,7 +22,6 @@ header {
   flex-direction: column;
   align-items: center;
 }
-
 input[type="text"] {
   margin-top: 10px;
   padding: 10px;
@@ -33,7 +31,6 @@ input[type="text"] {
   font-size: 16px;
   text-align: center;
 }
-
 footer {
   position: fixed;
   bottom: 0;
@@ -45,7 +42,6 @@ footer {
   padding: 10px;
   z-index: 10;
 }
-
 footer button {
   background-color: #333;
   color: white;
@@ -55,11 +51,9 @@ footer button {
   font-weight: bold;
   cursor: pointer;
 }
-
 footer button.active {
   background-color: #D62828;
 }
-
 .historial-entry {
   background-color: #1E1E1E;
   padding: 10px;
@@ -68,25 +62,20 @@ footer button.active {
   max-width: 400px;
   border-left: 6px solid;
 }
-
 .historial-entry.green {
   border-color: #4CAF50;
 }
-
 .historial-entry.red {
   border-color: #F44336;
 }
-
 .historial-entry.gray {
   border-color: #9E9E9E;
 }
-
 .historial-entry h4 {
   margin: 0;
   font-size: 16px;
   font-weight: bold;
 }
-
 .historial-entry p {
   margin: 5px 0 0;
   color: white;
