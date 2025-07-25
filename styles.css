@@ -71,14 +71,33 @@ footer button.active {
   max-width: 400px;
   text-align: center;
   margin-bottom: 20px;
+  position: relative;
 }
 
-.card.red {
-  border-top: 4px solid #D62828;
+.card.red::before {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 4px;
+  background-color: #D62828;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
 }
 
-.card.blue {
-  border-bottom: 4px solid #007BFF;
+.card.blue::after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 4px;
+  background-color: #007BFF;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
 }
 
 .konami-id {
@@ -116,57 +135,43 @@ footer button.active {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.history-header {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  padding: 0 10px;
-  margin-bottom: 8px;
-  align-items: center;
+  position: relative;
 }
 
 .history-ronda {
   font-weight: bold;
+  width: 100%;
+  padding: 6px;
   text-align: left;
 }
 
-.history-vs {
-  font-weight: bold;
+.history-ronda.result-win {
+  background-color: #4CAF50;
+}
+
+.history-ronda.result-loss {
+  background-color: #F44336;
+}
+
+.history-ronda.result-draw {
+  background-color: #B0BEC5;
+}
+
+.history-body {
+  width: 100%;
   text-align: center;
 }
 
-.history-resultado {
+.history-body h4 {
   font-weight: bold;
-  text-align: right;
+  color: white;
+  margin: 6px 0 2px;
 }
 
-.history-ronda.result-win::before {
-  content: '';
-  display: inline-block;
-  width: 10px;
-  height: 100%;
-  background-color: #4CAF50;
-  margin-right: 8px;
-}
-
-.history-ronda.result-loss::before {
-  content: '';
-  display: inline-block;
-  width: 10px;
-  height: 100%;
-  background-color: #F44336;
-  margin-right: 8px;
-}
-
-.history-ronda.result-draw::before {
-  content: '';
-  display: inline-block;
-  width: 10px;
-  height: 100%;
-  background-color: #B0BEC5;
-  margin-right: 8px;
+.history-body .konami-id {
+  font-size: 13px;
+  color: #aaa;
+  margin: 0;
 }
 
 .standing-title {
@@ -174,4 +179,16 @@ footer button.active {
   font-size: 20px;
   margin-bottom: 20px;
   text-align: center;
+}
+
+.medal-gold::before {
+  content: "\1F947 ";
+}
+
+.medal-silver::before {
+  content: "\1F948 ";
+}
+
+.medal-bronze::before {
+  content: "\1F949 ";
 }
