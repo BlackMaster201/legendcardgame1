@@ -1,7 +1,10 @@
 let tournamentData = null;
 let currentRound = null;
 
-// Carga del archivo .Tournament (1.txt)
+function padId(id) {
+  return String(id).padStart(10, '0');
+}
+
 fetch('1.txt')
   .then(response => response.text())
   .then(str => {
@@ -20,13 +23,9 @@ fetch('1.txt')
     if (label) label.textContent = 'No se encontró el archivo de torneo.';
   });
 
-// Añade ceros al inicio si faltan
-function padId(id) {
-  return id?.toString().padStart(10, '0') ?? '';
-}
-
 function buscarEmparejamientos() {
-  const input = document.getElementById('konamiId').value.trim();
+  const inputRaw = document.getElementById('konamiId').value.trim();
+  const input = padId(inputRaw);
   localStorage.setItem('konamiId', input);
 
   if (!tournamentData || !input) return;
@@ -38,10 +37,10 @@ function buscarEmparejamientos() {
   let encontrado = false;
 
   matches.forEach(match => {
-    const p1 = padId(match.querySelectorAll('Player')[0]?.textContent);
-    const p2 = padId(match.querySelectorAll('Player')[1]?.textContent);
-    const round = match.querySelector('Round')?.textContent;
-    const winner = padId(match.querySelector('Winner')?.textContent);
+    const p1 = padId(match.querySelectorAll('Player')[0]?.textContent || "");
+    const p2 = padId(match.querySelectorAll('Player')[1]?.textContent || "");
+    const round = match.querySelector('Round')?.textContent || "0";
+    const winner = padId(match.querySelector('Winner')?.textContent || "");
 
     if (input === p1 || input === p2) {
       encontrado = true;
@@ -90,7 +89,6 @@ function buscarEmparejamientos() {
   });
 }
 
-// Al cargar, restaurar Konami ID
 document.addEventListener('DOMContentLoaded', () => {
   const lastId = localStorage.getItem('konamiId');
   if (lastId) {
