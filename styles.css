@@ -3,237 +3,176 @@ body {
   background-color: #121212;
   color: #fff;
   margin: 0;
-  padding-bottom: 80px;
+  padding-bottom: 70px;
+  user-select: none;
 }
-
 header {
   text-align: center;
-  padding: 32px 8px 22px 8px;
-  background-color: #111;
+  padding: 20px;
+  background-color: #000;
 }
-
-h1 {
-  color: #D62828;
-  font-size: 2.6rem;
-  margin: 0 0 14px 0;
-  font-weight: bold;
-}
-
-h2, #rondaInfo {
-  color: #fff;
-  font-size: 2.1rem;
-  font-weight: bold;
-  margin: 0 0 8px 0;
-}
-
+.rojo { color: #d62828; }
 .container {
-  min-height: 440px;
-  width: 100%;
+  padding: 20px;
+  min-height: 430px;
+  background: linear-gradient(rgba(18, 18, 18, 0.97), rgba(18, 18, 18, 0.98)), url('LCG.png') no-repeat center 55%;
+  background-size: 240px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: relative;
-  /* Logo de fondo */
-  background: 
-    linear-gradient(rgba(18, 18, 18, 0.97), rgba(18, 18, 18, 0.97)),
-    url('LCG.png') no-repeat center 58%;
-  background-size: 260px;
-  background-attachment: local;
 }
-
 input[type="text"] {
   margin-top: 10px;
-  padding: 12px 10px;
-  border-radius: 6px;
+  padding: 12px;
+  border-radius: 7px;
   width: 100%;
-  max-width: 400px;
-  font-size: 18px;
+  max-width: 420px;
+  font-size: 19px;
   text-align: center;
   border: none;
   outline: none;
-  box-shadow: 0 2px 8px #111c;
-  background: #fff;
-  color: #222;
-  margin-bottom: 24px;
+  margin-bottom: 18px;
 }
-
-.standing-box {
-  background: #232323;
-  color: #fff;
-  border-radius: 10px;
-  margin: 0 0 18px 0;
-  width: 100%;
-  max-width: 400px;
-  text-align: center;
-  font-size: 1.1rem;
-  font-weight: bold;
-  padding: 9px 0;
-  box-shadow: 0 2px 7px #111a;
-}
-
-.table-label {
-  color: #fff;
-  font-size: 2rem;
-  font-weight: bold;
-  margin: 0 0 5px 0;
-  text-align: center;
-  letter-spacing: 1px;
-}
-
-.pairing-block {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 32px;
-}
-
-.player-box {
-  width: 320px;
-  max-width: 93vw;
-  background: #222;
-  border-radius: 13px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 11px 10px 8px 10px;
-  position: relative;
-  font-size: 1.35rem;
-  font-weight: bold;
-  margin-bottom: 2px;
-  box-shadow: 0 2px 8px #111a;
-}
-
-.player-box .player-name {
-  color: #fff;
-  font-size: 1.19em;
-  font-weight: bold;
-  margin-bottom: 0;
-}
-
-.player-box .player-id {
-  color: #bdbdbd;
-  font-size: 0.92em;
-  margin-top: 2px;
-  font-weight: normal;
-}
-
-.player-box.red {
-  border-top: 5px solid #D62828;
-  margin-bottom: 0px;
-}
-.player-box.blue {
-  border-bottom: 5px solid #2986f5;
-  margin-top: 0px;
-}
-
-.vs-label {
-  color: #fff;
-  font-size: 1.5rem;
-  font-weight: bold;
-  text-align: center;
-  margin: 7px 0 7px 0;
-  letter-spacing: 1px;
-}
-
 footer {
   position: fixed;
   bottom: 0;
   width: 100%;
-  background: #191919;
+  background-color: #181818;
   display: flex;
   justify-content: center;
-  gap: 22px;
-  padding: 13px 0 14px 0;
-  z-index: 3;
+  gap: 16px;
+  padding: 10px 0;
+  z-index: 5;
 }
-
 footer button {
-  background-color: #292929;
-  color: white;
+  background-color: #232323;
+  color: #fff;
   border: none;
-  padding: 12px 30px;
-  border-radius: 10px;
+  padding: 10px 22px;
+  border-radius: 8px;
   font-weight: bold;
-  font-size: 1.07rem;
   cursor: pointer;
-  box-shadow: 0 2px 6px #1115;
-  transition: background 0.18s;
+  font-size: 1.12em;
 }
 footer button.active {
-  background-color: #D62828;
+  background-color: #d62828;
 }
-
-/* HISTORIAL */
-
-#historyContainer {
-  width: 100%;
-  margin-top: 8px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.historial-box {
-  width: 340px;
-  max-width: 97vw;
-  background: #242424;
-  border-radius: 13px;
-  display: flex;
-  flex-direction: row;
-  align-items: stretch;
-  margin: 0 auto 13px auto;
-  box-shadow: 0 2px 6px #0007;
-  font-size: 1.1rem;
-  font-weight: bold;
-}
-
-.historial-color {
-  width: 8px;
-  border-radius: 12px 0 0 12px;
-  margin-right: 0;
-}
-.historial-color.victoria { background: #35c145; }
-.historial-color.derrota  { background: #D62828; }
-.historial-color.empate   { background: #a8b0b8; }
-
-.historial-content {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 8px 13px 8px 15px;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.historial-header {
-  font-size: 1.05rem;
-  font-weight: bold;
-  margin-bottom: 3px;
-  text-align: left;
-}
-
-.historial-header.victoria { color: #35c145; }
-.historial-header.derrota  { color: #D62828; }
-.historial-header.empate   { color: #a8b0b8; }
-
-.historial-vs {
-  font-size: 1.04rem;
+.card-mesa {
+  background: #222;
+  border-radius: 11px;
+  margin: 0 auto 16px auto;
+  width: 330px;
+  text-align: center;
   font-weight: bold;
   color: #fff;
+  font-size: 1.2em;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.13);
+  padding: 10px 0 4px 0;
+}
+.caja-jugador {
+  background: #232323;
+  border-radius: 11px 11px 18px 18px;
+  margin: 0 auto 10px auto;
+  width: 330px;
+  text-align: center;
+  font-weight: bold;
+  color: #fff;
+  font-size: 1.15em;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.13);
+  border-top: 4px solid #d62828;
+  padding: 8px 0 2px 0;
+  position: relative;
+}
+.caja-oponente {
+  background: #232323;
+  border-radius: 18px 18px 11px 11px;
+  margin: 0 auto 6px auto;
+  width: 330px;
+  text-align: center;
+  font-weight: bold;
+  color: #fff;
+  font-size: 1.15em;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.13);
+  border-bottom: 4px solid #2196f3;
+  padding: 8px 0 2px 0;
+  position: relative;
+}
+.konami-id {
+  color: #bbb;
+  font-size: 15px;
   margin-top: 2px;
+  font-weight: normal;
+}
+.vs-label {
+  font-size: 1.45em;
+  font-weight: bold;
+  color: #fff;
+  margin: 6px 0 6px 0;
+  text-align: center;
+  letter-spacing: 2px;
+}
+
+.historial-card {
+  background: #232323;
+  border-radius: 12px;
+  margin: 12px auto;
+  padding: 8px 20px 10px 18px;
+  max-width: 420px;
+  min-width: 240px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.20);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: relative;
+  font-size: 1.12em;
+}
+
+.historial-card .historial-bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  border-radius: 12px 0 0 12px;
+  background: #444;
+}
+
+.historial-card.win .historial-bar,
+.historial-card.win .historial-title { background: #23c552; color: #23c552;}
+.historial-card.loss .historial-bar,
+.historial-card.loss .historial-title { background: #d32d2d; color: #d32d2d;}
+.historial-card.draw .historial-bar,
+.historial-card.draw .historial-title { background: #bababa; color: #bababa;}
+
+.historial-title {
+  margin-left: 18px;
+  font-weight: bold;
+  margin-bottom: 2px;
+  font-size: 1.08em;
   text-align: left;
-  /* No usar color dinámico aquí */
+  display: block;
 }
 
-/* Responsive */
-@media (max-width: 540px) {
-  .container { background-size: 56vw; }
-  .player-box, .historial-box, .standing-box { max-width: 99vw; width: 97vw; }
-  input[type="text"] { max-width: 98vw; }
-  .standing-box { font-size: 1rem; }
+.historial-vs {
+  margin-left: 18px;
+  color: #fff;
+  font-weight: bold;
+  font-size: 1em;
+  text-align: left;
+  margin-bottom: 2px;
 }
-
-::-webkit-scrollbar { width: 8px; background: #1b1b1b; }
-::-webkit-scrollbar-thumb { background: #222; border-radius: 6px; }
+.standing-container {
+  text-align: center;
+  font-weight: bold;
+  margin: 0 0 14px 0;
+  font-size: 1.13em;
+}
+@media (max-width: 480px) {
+  .container, .card-mesa, .caja-jugador, .caja-oponente, .historial-card {
+    max-width: 98vw;
+    width: 96vw;
+  }
+  input[type="text"] {
+    max-width: 98vw;
+  }
+}
