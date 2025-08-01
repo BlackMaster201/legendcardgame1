@@ -1,34 +1,33 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const input = document.getElementById("konamiId");
-  const btnRonda = document.getElementById("btnRonda");
-  const btnHistorial = document.getElementById("btnHistorial");
-  const resultado = document.getElementById("resultado");
-  const historial = document.getElementById("historial");
+document.addEventListener('DOMContentLoaded', () => {
+  const btnRonda = document.getElementById('btnRonda');
+  const btnHistorial = document.getElementById('btnHistorial');
+  const tableContainer = document.getElementById('tableContainer');
+  const historyContainer = document.getElementById('historyContainer');
+  const searchInput = document.getElementById('konamiId');
 
-  input.value = localStorage.getItem("konamiId") || "";
-  if (input.value.length === 10) {
-    buscarEmparejamientos();
-  }
-
-  btnRonda.addEventListener("click", () => {
-    btnRonda.classList.add("active");
-    btnHistorial.classList.remove("active");
-    resultado.style.display = "block";
-    historial.style.display = "none";
+  btnRonda.addEventListener('click', () => {
+    btnRonda.classList.add('active');
+    btnHistorial.classList.remove('active');
+    tableContainer.style.display = 'block';
+    historyContainer.style.display = 'none';
   });
 
-  btnHistorial.addEventListener("click", () => {
-    btnHistorial.classList.add("active");
-    btnRonda.classList.remove("active");
-    resultado.style.display = "none";
-    historial.style.display = "block";
+  btnHistorial.addEventListener('click', () => {
+    btnHistorial.classList.add('active');
+    btnRonda.classList.remove('active');
+    tableContainer.style.display = 'none';
+    historyContainer.style.display = 'block';
   });
 
-  input.addEventListener("input", () => {
-    const value = input.value.replace(/\D/g, "").slice(0, 10);
-    input.value = value;
-    if (value.length === 10) {
+  searchInput.addEventListener('input', () => {
+    if (searchInput.value.length === 10) {
       buscarEmparejamientos();
     }
   });
+
+  const savedId = localStorage.getItem('konamiId');
+  if (savedId) {
+    searchInput.value = savedId;
+    buscarEmparejamientos();
+  }
 });
