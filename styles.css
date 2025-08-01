@@ -1,133 +1,108 @@
 body {
-  font-family: Arial, sans-serif;
-  background-color: #121212;
+  background: #111;
   color: #fff;
   margin: 0;
-  padding-bottom: 80px;
-  user-select: none;
+  padding: 0;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 header {
+  background: #111;
   text-align: center;
-  padding: 20px;
-  background-color: rgba(0, 0, 0, 0.8);
+  padding: 30px 0 10px 0;
 }
 
 h1 {
-  color: #D62828;
-  margin-bottom: 12px;
+  margin: 0 0 10px 0;
+  color: #fff;
+  font-size: 2.5em;
+  font-weight: bold;
 }
 
-h2#rondaInfo {
+#rondaInfo {
   color: #fff;
-  font-size: 2rem;
+  font-size: 2.2em;
   font-weight: bold;
 }
 
 .container {
-  padding: 20px;
-  background: linear-gradient(rgba(18, 18, 18, 0.96), rgba(18, 18, 18, 0.96)), url('LCG.png') no-repeat center 55%;
-  background-size: 220px;
-  background-attachment: local;
-  min-height: 420px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-top: 25px;
 }
 
 input[type="text"] {
-  margin-top: 10px;
-  padding: 10px;
-  border-radius: 6px;
-  width: 100%;
-  max-width: 400px;
-  font-size: 16px;
-  text-align: center;
-}
-
-footer {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  background-color: #1e1e1e;
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  padding: 10px;
-}
-
-footer button {
-  background-color: #333;
-  color: white;
-  border: none;
-  padding: 10px 20px;
+  margin: 0 0 30px 0;
+  padding: 13px 10px;
+  font-size: 1.4em;
   border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-footer button.active {
-  background-color: #D62828;
-}
-
-.table-label {
+  border: none;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 2px 9px #0007;
   text-align: center;
-  font-size: 28px;
-  font-weight: bold;
-  color: #D62828;
-  margin: 20px 0 16px 0;
-  display: block;
+  outline: none;
 }
 
-.card {
-  background: #1E1E1E;
-  border-radius: 10px;
-  width: 320px;
-  margin: 0 auto 0 auto;
-  padding: 12px 0 8px 0;
+#resultado {
+  width: 100%;
+  max-width: 480px;
+  margin-top: 0;
+}
+
+.standing {
+  margin-bottom: 20px;
   text-align: center;
-  position: relative;
+  font-size: 1.25em;
+  font-weight: bold;
+}
+
+.history-title {
+  font-size: 1.15em;
+  margin: 18px 0 10px 0;
+  text-align: center;
+}
+
+.hist-card {
+  display: flex;
+  align-items: stretch;
+  margin-bottom: 15px;
+  background: #232323;
+  border-radius: 12px;
+  min-height: 56px;
+  box-shadow: 0 2px 8px #0003;
+}
+
+.hist-card .left-color {
+  width: 8px;
+  border-radius: 12px 0 0 12px;
+}
+
+.hist-card .hist-content {
+  flex: 1;
+  padding: 10px 18px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  box-sizing: border-box;
+  justify-content: center;
+}
+
+.hist-ronda {
   font-weight: bold;
-  font-size: 20px;
+  font-size: 1.13em;
+  margin-bottom: 2px;
+  text-align: left;
 }
 
-.card.red-top {
-  border-top: 4px solid #D62828;
-  border-bottom: none;
-}
-
-.card.blue-bottom {
-  border-bottom: 4px solid #007BFF;
-  border-top: none;
-}
-
-.nombre {
-  font-weight: bold;
-  font-size: 18px;
-  color: white;
-}
-
-.konami-id {
-  color: #aaa;
-  font-size: 14px;
-  margin-top: 4px;
-}
-
-.vs-label {
-  text-align: center;
-  font-size: 22px;
+.hist-vs {
   font-weight: bold;
   color: #fff;
-  margin: 16px 0 10px 0;
-  display: block;
+  font-size: 1.04em;
+  text-align: left;
 }
 
-@media (max-width: 600px) {
-  .container { background-size: 140px; }
-  .card { width: 96vw; font-size: 18px;}
-  input[type="text"] { font-size: 14px; }
+@media (max-width: 500px) {
+  .container { margin-top: 14px; }
+  .hist-card .hist-content { padding: 8px 8px; }
+  .hist-card { min-height: 45px; }
 }
