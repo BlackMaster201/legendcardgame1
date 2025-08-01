@@ -90,13 +90,14 @@ footer button.active {
 }
 .mesa-label {
   color: #fff;
-  background: #d32d2d;
-  border-radius: 7px 7px 0 0;
   font-weight: bold;
   font-size: 1.38em;
-  padding: 5px 0 1px 0;
+  padding: 12px 0 6px 0;
   margin-bottom: 0;
   width: 100%;
+  background: transparent;
+  border-radius: 0;
+  text-align: center;
 }
 .nombre-carta {
   background: #232323;
