@@ -44,16 +44,12 @@ function mostrarRonda(konamiId) {
   const playerNode = players.find(p => padId(p.querySelector('ID')?.textContent) === input);
   const tableDiv = document.getElementById('tableContainer');
   const standingDiv = document.getElementById('standingContainer');
+  standingDiv.style.display = "none"; // OCULTAR el standing en ronda
+
   if (!playerNode) {
     tableDiv.innerHTML = "<div style='text-align:center;margin:2em 0;'>No se encontró el Konami ID.</div>";
-    standingDiv.innerHTML = "";
     return;
   }
-
-  // Obtener standing
-  const rank = parseInt(playerNode.querySelector('Rank')?.textContent || "0", 10);
-  const dropFromRound = playerNode.querySelector('DropRound')?.textContent && parseInt(playerNode.querySelector('DropRound').textContent) > 0;
-  standingDiv.innerHTML = `<div class="standing"><strong>Standing:</strong> ${getStandingWithDropAndMedal(rank, dropFromRound)}</div>`;
 
   // Buscar match actual
   const matches = Array.from(tournamentData.querySelectorAll('TournMatch'));
@@ -117,9 +113,10 @@ function mostrarHistorial(konamiId) {
   const playerNode = players.find(p => padId(p.querySelector('ID')?.textContent) === input);
   const historyDiv = document.getElementById('historyContainer');
   const standingDiv = document.getElementById('standingContainer');
+
   if (!playerNode) {
     historyDiv.innerHTML = "<div style='text-align:center;margin:2em 0;'>No se encontró el Konami ID.</div>";
-    standingDiv.innerHTML = "";
+    standingDiv.style.display = "none";
     return;
   }
 
@@ -127,6 +124,7 @@ function mostrarHistorial(konamiId) {
   const rank = parseInt(playerNode.querySelector('Rank')?.textContent || "0", 10);
   const dropFromRound = playerNode.querySelector('DropRound')?.textContent && parseInt(playerNode.querySelector('DropRound').textContent) > 0;
   standingDiv.innerHTML = `<div class="standing"><strong>Standing:</strong> ${getStandingWithDropAndMedal(rank, dropFromRound)}</div>`;
+  standingDiv.style.display = "";
 
   // Historial de matches
   const matches = Array.from(tournamentData.querySelectorAll('TournMatch'));
@@ -188,6 +186,7 @@ function setupListeners() {
     btnHistorial.classList.remove('active');
     tableDiv.style.display = '';
     historyDiv.style.display = 'none';
+    standingDiv.style.display = "none";
     mostrarRonda(input.value);
   }
   function showHistorial() {
@@ -212,6 +211,7 @@ function setupListeners() {
       tableDiv.innerHTML = "";
       historyDiv.innerHTML = "";
       standingDiv.innerHTML = "";
+      standingDiv.style.display = "none";
     }
   });
 
