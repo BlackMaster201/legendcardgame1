@@ -9,13 +9,20 @@
 </head>
 <body>
   <header>
-    <h1 id="rondaInfo">Cargando ronda...</h1>
+    <h1 class="main-title">Yu-Gi-Oh! Regional Qualifier 2025</h1>
+    <div id="rondaInfo">Cargando ronda...</div>
   </header>
   <main>
     <div class="container">
       <input type="text" id="konamiId" maxlength="10" placeholder="Ingresa tu Konami ID" autocomplete="off" inputmode="numeric" />
-      <div id="resultado"></div>
+      <div id="tableContainer"></div>
+      <div id="historyContainer" style="display:none"></div>
+      <div id="standingContainer"></div>
     </div>
   </main>
+  <footer>
+    <button id="btnRonda" class="active">Ronda</button>
+    <button id="btnHistorial">Historial</button>
+  </footer>
 </body>
 </html>
