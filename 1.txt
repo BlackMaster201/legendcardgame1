@@ -13,7 +13,7 @@
 	<TableOffset>0</TableOffset>
 	<PlayoffRound>8</PlayoffRound>
 	<SoftwareVersion>3.0.0.0</SoftwareVersion>
-	<Finalized>True</Finalized>
+	<Finalized>False</Finalized>
 	<Staff>
 		<XmlStaffArray />
 	</Staff>
