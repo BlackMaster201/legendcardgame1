@@ -6,14 +6,24 @@ body {
   padding-bottom: 80px;
   user-select: none;
 }
+
 header {
   text-align: center;
   padding: 20px;
   background-color: rgba(0, 0, 0, 0.8);
 }
+
 h1 {
   color: #D62828;
+  margin-bottom: 12px;
 }
+
+h2#rondaInfo {
+  color: #fff;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
 .container {
   padding: 20px;
   background: linear-gradient(rgba(18, 18, 18, 0.96), rgba(18, 18, 18, 0.96)), url('LCG.png') no-repeat center 55%;
@@ -24,6 +34,7 @@ h1 {
   flex-direction: column;
   align-items: center;
 }
+
 input[type="text"] {
   margin-top: 10px;
   padding: 10px;
@@ -33,6 +44,7 @@ input[type="text"] {
   font-size: 16px;
   text-align: center;
 }
+
 footer {
   position: fixed;
   bottom: 0;
@@ -42,8 +54,8 @@ footer {
   justify-content: center;
   gap: 20px;
   padding: 10px;
-  z-index: 10;
 }
+
 footer button {
   background-color: #333;
   color: white;
@@ -53,101 +65,69 @@ footer button {
   font-weight: bold;
   cursor: pointer;
 }
+
 footer button.active {
   background-color: #D62828;
+}
+
+.table-label {
+  text-align: center;
+  font-size: 28px;
+  font-weight: bold;
+  color: #D62828;
+  margin: 20px 0 16px 0;
+  display: block;
 }
 
 .card {
   background: #1E1E1E;
   border-radius: 10px;
-  padding: 10px 15px 15px;
-  width: 100%;
-  max-width: 400px;
-  margin-bottom: 20px;
+  width: 320px;
+  margin: 0 auto 0 auto;
+  padding: 12px 0 8px 0;
   text-align: center;
-  border-top: 4px solid #D62828;
-  margin-left: auto;
-  margin-right: auto;
-}
-.card.bottom-border {
-  border-top: none;
-  border-bottom: 4px solid #007BFF;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  font-weight: bold;
+  font-size: 20px;
 }
 
-.card .nombre {
+.card.red-top {
+  border-top: 4px solid #D62828;
+  border-bottom: none;
+}
+
+.card.blue-bottom {
+  border-bottom: 4px solid #007BFF;
+  border-top: none;
+}
+
+.nombre {
   font-weight: bold;
   font-size: 18px;
   color: white;
 }
-.card .konami-id {
+
+.konami-id {
   color: #aaa;
   font-size: 14px;
   margin-top: 4px;
 }
 
-.vs-label,
-.table-label {
+.vs-label {
   text-align: center;
-  font-size: 20px;
+  font-size: 22px;
   font-weight: bold;
-  color: #D3D3D3;
-  margin: 10px 0 10px 0;
+  color: #fff;
+  margin: 16px 0 10px 0;
   display: block;
 }
 
-.table-label {
-  color: #fff;
-  font-size: 22px;
-  margin-top: 12px;
-  margin-bottom: 8px;
-}
-
-.history-standing {
-  font-weight: bold;
-  font-size: 18px;
-  text-align: center;
-  margin-bottom: 12px;
-}
-.standing-gold { color: #FFD700; }
-.standing-silver { color: #C0C0C0; }
-.standing-bronze { color: #CD7F32; }
-.standing-drop { color: #F44336; }
-
-.history-box {
-  display: flex;
-  align-items: stretch;
-  border-radius: 10px;
-  margin-bottom: 15px;
-  overflow: hidden;
-  width: 100%;
-  max-width: 400px;
-  background-color: #1E1E1E;
-  box-shadow: 0 0 4px #0006;
-  margin-left: auto;
-  margin-right: auto;
-}
-.history-line {
-  width: 8px;
-}
-.result-win { background-color: #4CAF50; }
-.result-loss { background-color: #F44336; }
-.result-draw { background-color: #B0BEC5; }
-.history-content {
-  padding: 10px 0 10px 12px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-.history-title {
-  font-weight: bold;
-  margin-bottom: 5px;
-  font-size: 17px;
-  text-align: left;
-}
-.history-opponent {
-  color: white;
-  font-weight: bold;
-  font-size: 15px;
-  text-align: left;
+@media (max-width: 600px) {
+  .container { background-size: 140px; }
+  .card { width: 96vw; font-size: 18px;}
+  input[type="text"] { font-size: 14px; }
 }
